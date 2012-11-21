@@ -1,0 +1,7 @@
+
+fun int plus(int a, int b) = a + b
+
+fun int main() = let arr = iota(10) in 
+                 let b = reduce(plus, 0, arr) in 
+                 let c = write("Value Of 0+1+2+3+4+5+6+7+8+9 = ") in
+                 write(b)

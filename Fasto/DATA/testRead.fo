@@ -1,0 +1,84 @@
+////////////////////////////////////////
+///      Read Int/Char/Bool          ///
+////////////////////////////////////////
+ 
+fun int readInt(int i) = 
+    let a = write("Enter int number ")
+    in  let b = write(i)
+        in  let c = write("\n")
+            in  let v = read(int)
+                in  v
+
+fun char readChar(int i) = 
+    let a = write("Enter char number ")
+    in  let b = write(i)
+        in  let c = write("\n")
+            in  let v = read(char)
+                in  v
+
+fun bool readBool(int i) =
+    let a = write("Enter bool number ")
+    in  let b = write(i)
+        in  let c = write("\n")
+            in  let v = read(bool)
+                in  v
+
+////////////////////////////////////////
+///    Read Array Int/Char/Bool      ///
+//////////////////////////////////////// 
+
+fun [int] readIntArr(int n) = 
+    let itsp = iota(n)
+    in  map(readInt, itsp)
+
+fun [char] readCharArr(int n) = 
+    let itsp = iota(n)
+    in  map(readChar, itsp)
+
+fun [bool] readBoolArr(int n) = 
+    let itsp = iota(n)
+    in  map(readBool, itsp)
+
+///////////////////////////////////////////
+/// Read Array Array Int/Char/Bool      ///
+/////////////////////////////////////////// 
+
+fun [[int]] readIntArrArr(int n) = 
+    let iotaarr = replicate(n, n)
+    in  map(readIntArr, iotaarr)
+
+fun [[char]] readCharArrArr(int n) = 
+    let iotaarr = replicate(n, n)
+    in  map(readCharArr, iotaarr)
+
+fun [[bool]] readBoolArrArr(int n) = 
+    let iotaarr = replicate(n, n)
+    in  map(readBoolArr, iotaarr)
+
+///////////////////////////////////////////
+/// Write Array Array Int/Char/Bool      ///
+/////////////////////////////////////////// 
+
+fun int writeInt      (  int   i  ) = let v = write(i) in i
+fun int writeIntArr   ( [int]  arr) = let v = map(writeInt, arr) in 1
+fun int writeIntArrArr([[int]] arr) = let v = map(writeIntArr, arr) in 1
+
+fun int writeChar      (  char   i  ) = let v = write(i) in 1
+fun int writeCharArr   ( [char]  arr) = let v = map(writeChar, arr) in 1
+fun int writeCharArrArr([[char]] arr) = let v = map(writeCharArr, arr) in 1
+
+fun int writeBool      (  bool   i  ) = let v = write(i) in 1
+fun int writeBoolArr   ( [bool]  arr) = let v = map(writeBool, arr) in 1
+fun int writeBoolArrArr([[bool]] arr) = let v = map(writeBoolArr, arr) in 1
+
+///////////////////////////////////////////
+///          MAIN TEST                  ///
+/////////////////////////////////////////// 
+
+fun int main() =
+    let arri = readIntArrArr (2) in let a = writeIntArrArr (arri) in
+    let arrc = readCharArrArr(2) in let a = writeCharArrArr(arrc) in 
+    let arrb = readBoolArrArr(2) in let a = writeBoolArrArr(arrb) in 1
+//    let arrb = readBoolArr(2) in let a = writeBoolArr(arrb) in 1
+//    let arrc = readCharArr(2) in let a = writeCharArr(arrc) in 1
+

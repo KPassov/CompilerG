@@ -1,0 +1,550 @@
+\documentclass[11pt,a4paper]{article}
+
+%\addtolength{\voffset}{-6mm}
+%\addtolength{\textheight}{12mm}
+%
+%\addtolength{\evensidemargin}{-10mm}
+%\addtolength{\oddsidemargin}{-2mm}
+%\addtolength{\textwidth}{10mm}
+
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{array}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\usepackage{fancyvrb}
+\usepackage[normalem]{ulem}
+
+\usepackage[linkcolor=black,colorlinks=true]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%  reviewer comments  %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\comm}[2]{{\sf \(\spadesuit\){\bf #1: }{\rm \sf #2}\(\spadesuit\)}}
+%\renewcommand{\comm}[2]{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\jbcomment}[1]{\comm{JB}{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%    code sections   %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\codesize}{\scriptsize}
+
+% code citation in text
+\newcommand{\cd}[1]{{{\codesize\tt #1}}}
+\newcommand{\xcd}[1]{{{\small \tt #1}}}
+\renewcommand{\FancyVerbFormatLine}[1]{#1}
+
+% code highlighting commands in own block
+% code which is fed into GHC when file is loaded as *.lhs:
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\codesize}
+
+% Fancy code with color commands:
+\DefineVerbatimEnvironment{colorcode}%
+        {Verbatim}{fontsize=\codesize,commandchars=\\\{\}}
+% use like this:
+%% \begin{colorcode}
+%% foo arg arg' = \emph{bar} {\large \{arg' \}} \textit{arg}
+%% \end{colorcode}
+
+
+\title{MIPS, Register allocation, and the MARS simulator}
+%\title{MIPS, registerallokering og MARS}
+
+\author{Jost Berthold\\ (based on Danish version by Torben Mogensen, 2010)}
+%\author{Torben Mogensen}
+
+\date{November 2012}
+
+\begin{document}
+\setlength{\parindent}{0.2em}
+
+\maketitle
+
+
+\section*{Overview}
+\addcontentsline{toc}{section}{Overview}
+
+This document describes back-end tools and given SML modules for assignments 
+in the lecture "Compilers" in the 2012 run: the MIPS instruction (sub-)set,
+a register allocation module, and the simulator MARS to execute MIPS assembly code.
+
+\tableofcontents
+
+\section{MIPS Instruction Set Module}
+
+The module \cd{Mips.sml} defines a data structure to describe a subset of the 
+MIPS\footnote{MIPS stands for \emph{Microprocessor without 
+Interlocked Pipeline Stages}, a microprocessor in RISC (reduced instruction set)
+architecture. The MIPS architecture and instruction set are described in
+ extenso in Appendix A of Patterson and
+	 Hennessy~\cite{PattersonHennessy} (available online).}
+instruction set, as the type \cd{mips}:
+
+\medskip
+%\begin{minipage}{0.46\textwidth}
+%\end{code}
+%\end{minipage}
+%\hfill
+%\begin{minipage}{0.46\textwidth}
+%\begin{code}[frame=lines,label=\textit{MIPS.sml}]
+\begin{code}[frame=lines,label=\textit{MIPS.sml}]
+datatype mips
+ = LABEL of string
+ | EQU of string*string
+ | GLOBL of string
+ | TEXT of string
+ | DATA of string
+ | SPACE of string
+ | ASCII of string
+ | ASCIIZ of string
+ | ALIGN of string
+ | COMMENT of string
+ | LA of string*string
+ | LUI of string*string
+ | ADD of string*string*string
+ | ADDI of string*string*string
+ | SUB of string*string*string
+ | MUL of string*string*string (* low bytes of result in dest., no overflow *)
+ | DIV of string*string*string (* quotient in dest., no remainder *)
+ | AND of string*string*string
+ | ANDI of string*string*string
+ | OR of string*string*string
+ | ORI of string*string*string
+ | XOR of string*string*string
+ | XORI of string*string*string
+ | SLL of string*string*string
+ | SRA of string*string*string
+ | SLT of string*string*string
+ | SLTI of string*string*string
+ | BEQ of string*string*string
+ | BNE of string*string*string
+ | BGEZ of string*string
+ | J of string
+ | JAL of string * string list (* label + arg. reg.s *)
+ | JR of string * string list (* jump reg. + result reg.s *)
+ | LW of string*string*string (* lw rd,i(rs), encoded as LW (rd,rs,i) *)
+ | SW of string*string*string (* sw rd,i(rs) encoded as SW (rd,rs,i) *)
+ | LB of string*string*string (* lb rd,i(rs) encoded as LB (rd,rs,i) *)
+ | SB of string*string*string (* sb rd,i(rs) encoded as SB (rd,rs,i) *)
+ | NOP
+ | SYSCALL
+\end{code}
+
+We explain in brief the meaning of each instruction.
+
+\begin{description}
+
+
+\item[\texttt{LABEL}]
+defines a \emph{label} (a target for jump instructions).
+
+\item[\texttt{EQU}] 
+  serves to define constants in assembly. For instance, \cd{EQU~("x","-16")}
+  stands for the assembly instruction \cd{x = -16}. 
+  The two fields are strings because one can use hexadecimal format 
+  and other (previously defined) constants and labels as values.
+
+\item[\texttt{ GLOBL, TEXT, DATA, SPACE, ASCII, ASCIIZ} and \texttt{ALIGN}] 
+  stand for the assembly directives 
+    \cd{.globl, .text, .data, .space, .ascii, .asciiz} and \cd{.align}. 
+    They delimit different segments of an assembly program, and are used by the
+    assembler which creates machine code from it.
+
+\item[\texttt{COMMENT}] contains a comment.
+
+\item[\texttt{LA}] is the instruction to load an address into a register.
+	The register is given as either a number between 0 and 31 (as a string)
+	or the name of a variable that is held in a numerical register.
+	\emph{Symbolic register names} such as \cd{v0} or \cd{a0} \emph{cannot be used},
+	because everything that is not a number will be considered as an allocated
+	variable by the register allocator later.
+
+\item[\texttt{LUI}] loads a value (`I' for ``immediate'') into the upper
+	16 bit of a register (given as a number between 0 and 31 or a name, as 
+	described above).
+
+\item[\texttt{ADD} \ldots \texttt{SLTI}]
+	are common binary arithmetic, logical and shift operations
+	(using registers or, with `I', values) as MIPS instructions.
+	Detailed descriptions of these instructions can be looked up 
+	in other sources (for instance Appendix A of Patterson and
+	 Hennessy~\cite{PattersonHennessy}).
+	Register arguments are given as described above, numeric constants 
+	are either (signed) decimal numbers, hexadecimal numbers starting 
+	with \cd{0x}, or symbolic constants defined by \texttt{EQU} before.
+
+\item[\texttt{BEQ}\ldots\texttt{J}] 
+	are conditional and unconditional jump instructions which take a label
+	argument (and one or two register arguments in case of branch instructions).
+    Execution continues at the instruction designated 
+	by the label argument. In case of branch instructions, the register
+	values are checked for the indicated condition before, and continues
+	with the next instruction if the condition is false (for instance,
+	\emph{branch-equal} only jumps if the values in the two argument registers
+	are equal).
+
+\item[\texttt{JAL},]
+	the MIPS \emph{jump-and-link} instruction \cd{jal}, stores the address
+	of the instruction that follows \cd{jal} into the return address register \cd{ra}
+	and execution continues at the instruction designated by the argument label.
+
+    In order to do register allocation on MIPS code, \cd{JAL} should, besides the jump
+	target label, carry a list of variables and registers that are live at the destination
+	(typically argument registers and global variables).
+    The \cd{JAL} instruction in register-allocated code does not use this list and it 
+    can thus be left empty.
+    
+
+\item[{\tt JR},] the MIPS \emph{jump-register} instruction {\tt jr}, continues
+	execution at the address stored in the register that is given as an argument.
+%
+	Besides the jump target register, \cd{JR} carries a list of live variables and 
+	registers at the destination (typically return value registers and global variables).
+    The \cd{JR} instruction in register-allocated code does not use this list and it 
+    can thus be left empty.
+
+\item[{\tt LW, SW, LB {\rm and} SB}] are the MIPS \emph{load} and \emph{store} instructions
+	for words and bytes (\emph{load/store-word/byte}, \cd{lw, sw, lb, sb}).
+	Please note: in contrast to usual MIPS assembly format, the \emph{offset} from
+	the source address stands \emph{last} in the parameter list. For instance, 
+	\cd{LW~("2","28","16")} encodes the instruction \cd{lw~\$2,16(\$28)} (load word 
+	from address in register 28 plus 16 byte offset into register 2).
+
+\item[{\tt NOP}] is the empty instruction \cd{nop}, \emph{no operation}.
+
+\item[{\tt SYSCALL}] is the \emph{system call} instruction \cd{syscall}.
+	Register \$2 contains the system operation to execute, parameters are given
+	in registers \$4 and \$5, a possible return value will appear in \$2.
+
+	System calls interface to operating system services and will not be 
+	explained here. Interested readers are referred to appendix A.9 in
+	\cite{PattersonHennessy}.
+
+\end{description}
+
+\noindent
+Aside from these instructions, \cd{Mips.sml} also provides two pseudo-instructions
+which are part of MIPS, but implemented by an \emph{immediate-or} instruction:
+
+\begin{description}
+
+\item[{\tt MOVE (x,y)}] (MIPS \cd{move}) is translated to {\tt ORI (x,y,"0")},
+	a bitwise \cd{OR} of $0$ with the source register \cd{y}, storing in \cd{x}.
+	The register allocator can remove a \cd{move} instruction if target
+	and source (\cd{x} and \cd{y}) are allocated to the same register.
+
+\item[{\tt LI (x,k)}], the MIPS \emph{load-immediate} instruction \cd{li}, 
+	is translated to {\tt ORI (x,"0",k)}, a bitwise \cd{OR} of $0$ with 
+	the constant \cd{k}.
+
+\end{description}
+
+\noindent
+A MIPS assembly program is represented simply as a list of these instructions, i.e. 
+\cd{type MipsProgram = Mips.mips~list}. 
+
+Finally, the {\tt Mips} module defines
+functions to "pretty-print" MIPS instructions, and a function \cd{pp\_mips\_list}
+that prints an entire program. The resulting string can then be written to a file 
+and later read in by a MIPS assembler or simulator.
+
+\section{The Register Allocator}
+\subsection{Interface and Functionality}
+Module  \cd{RegAlloc.sml} provides a register allocator, which translates 
+symbolic register names into register numbers. The allocator works on 
+the body of a single function at a time. Its type is
+
+\begin{code}[frame=lines, label=from \textit{RegAlloc.sig}]
+  val registerAlloc :
+    Mips.mips list -> string list -> int -> int -> int
+    -> Mips.mips list * string list * int
+\end{code}
+
+The arguments of \cd{registerAlloc} are a list of MIPS instructions,
+a list of registers that are live \emph{after} executing the instructions,
+and three register numbers: the lowest usable register (typically 2 for MIPS),
+the largest \emph{caller-saves} register, and the maximum register overall
+(MIPS has 32 registers, but some of them serve special purposes. We use 25).
+Registers in the range from the first to the second number are \emph{caller-saves}
+registers, while those with numbers between the second and the third number are
+\emph{callee-saves}. The standard conventions for MIPS are 2, 15 and 25.
+
+{\tt registerAlloc} returns a triple. The first, and most important, component 
+is a modified list of instructions with symbolic register names replaced by 
+numerical registers\footnote{For better readability and debugging, the instruction 
+	sequence is also commented with the original symbolic instruction.}, and 
+\cd{move} instructions removed whenever source and target register were allocated
+to the same numerical register.
+
+The other return values are: a list of variables that are live at entry of the code,
+and the maximum register number allocated in the instruction sequence.
+The live variables are only for debugging, the maximum register number
+is needed for generating code that protects \emph{callee-saves} registers.
+
+The register allocator does not \emph{spill} registers, as this would make it
+considerably more complicated. If there are not enough registers available,
+an exception \texttt{not\_colourable} is raised instead.
+
+\subsection{Using the register allocator in function translation}
+
+We use a simplified version of the MIPS calling conventions:
+
+\begin{itemize}
+
+\item Registers \$2 \ldots \$15 are {\em caller-saves} and \$16 \ldots
+  \$25 are {\em callee-saves}.
+
+\item Parameters are passed in register \$2 \ldots \$15 (as necessary)
+	and the function result is passed in register \$2.
+	We assume that there are never more than 14 parameters, ensuring that
+	all parameters can be passed in registers.
+
+\item Register \$29 is the stack pointer. The stack grows towards zero 
+	(in negative direction), and the stack pointer (\cd{SP}) points to
+	the top-most element (with the lowest address).
+	No \emph{frame pointer} is used.
+
+\end{itemize}
+
+\subsubsection{Function Calls}
+The register allocator implements \emph{caller-saves} for jumps, 
+and will not allocate variables to \emph{caller-saves} registers if
+these are live after the function call. Thus, a function call such as
+\texttt{t = f(x,y,z)} can be translated to the following instructions:
+
+\begin{code}
+[Mips.MOVE ("2","x"),
+ Mips.MOVE ("3","y"),
+ Mips.MOVE ("4","z"),
+ Mips.JAL ("f",["2","3","4"]),
+ Mips.MOVE ("t","2")]
+\end{code}
+
+Please note that the list of registers used as parameters in the call is
+an extra argument to the \cd{jal} instruction (as explained above).
+When more than 14 parameters have to be used, remaining parameters should 
+be passed on the stack.
+
+\subsubsection{Prolog and Epilog of Functions}
+
+Once we have translated the \emph{body} of a function definition 
+\cd{f(x,y,z) = $e$} (the part that computes the value of $e$ from 
+\cd{x}, \cd{y} and \cd{z}) to a list of MIPS instructions, this code
+sequence must be wrapped by additional instructions to receive the
+arguments in registers, and to return the result in register \$2.
+Assuming the code sequence \cd{body} for $e$ stores the value in 
+a symbolic register \cd{result}, the
+entire body of \cd{f} is the following:
+
+\begin{code}
+val body_symb = [Mips.MOVE ("x","2"),
+                 Mips.MOVE ("y","3"),
+                 Mips.MOVE ("z","4")]
+                @ body @
+                [Mips.MOVE ("2","result")]
+\end{code}
+
+This symbolic code is now run through the register allocator:
+
+\begin{code}
+val (f_body, _, maxReg) =
+        RegAlloc.registerAlloc body_symb ["2"] 2 15 25
+\end{code}
+The arguments indicate that:
+\begin{itemize}
+\item register \$2 is the only live register at the exit of \cd{body\_symb}.
+	It will contain the return value.
+\item The minimum register is 2, the highest caller-saves register is 15,
+	 and the maximum register available is 25.
+\end{itemize}
+
+The returned \cd{f\_body} contains the body of funtion \cd{f} with numerical
+registers. Many of the \cd{move} instructions we added in the previous step
+are likely to be removed by the register allocator, as it will try to use 
+the registers which are already filled with the right values.
+
+Return value \cd{maxReg} indicates the highest register number used in 
+\cd{f\_body}. If this number is higher than 15 (maximum caller-saves),
+the body uses \emph{callee-saves registers} which need to be 
+\emph{saved to the stack} before executing the body code and 
+\emph{restored afterwards}.
+We also save the return address from register \cd{RA} (register \$31) to the 
+stack, as the body might call other functions and overwrite the address otherwise.
+
+For instance, if \cd{maxReg} is 17, registers \cd{RA} (\$31), \$16 and \$17 need 
+to be saved to the stack and restored afterwards, leading to the following code:
+
+\medskip
+\begin{minipage}{0.6\textwidth}
+\begin{code}
+val prologue = [Mips.LABEL "f",
+                Mips.SW ("31","29","-4"),  # return address (RA)
+                Mips.SW ("16","29","-8"),  # 16, callee-saves 1
+                Mips.SW ("17","29","-12"), # 17, callee-saves 2
+                Mips.ADDI ("29","29","-12")] # adjust SP
+
+val epilogue = [Mips.ADDI ("29","29","12"),  # adjust SP
+                Mips.LW ("17","29","-12"), # 17, callee-saves 2
+                Mips.LW ("16","29","-8"),  # 16, callee-saves 1
+                Mips.LW ("31","29","-4"),  # return address (RA)
+                Mips.JR ("31",[])]
+
+val f_all = prologue @ f_body @ epilogue
+\end{code}
+\end{minipage}
+\hfill
+\begin{minipage}{0.2\textwidth}
+{\footnotesize
+\setlength{\unitlength}{0.27em}
+\begin{picture}(25,55)
+%\put(0,0){\dashbox(25,55){}}
+
+\thicklines
+\put(0,15){\vector(0,1){20}}
+\put(0,18){\rotatebox{90}{growing}}
+
+\put(5,40){\dashbox(20,15)[t]{\it Free}}
+\put(10,47){\it Stack}
+\put(7,42){\it (garbage)}
+
+\put(5,34){\framebox(20,6){\tt saved \$17}}
+\put(5,28){\framebox(20,6){\tt saved \$16}}
+\put(5,22){\framebox(20,6){\tt saved RA}}
+
+\put(5,10){\framebox(20,12)[t]{\it previous}}
+\put(10,15.5){\it call's}
+\put(10,11){\it stack}
+\put(5,3){\framebox(20,7){..}}
+
+\put(1,40){\vector(1,0){4}}
+\put(0,41){\tt SP}
+\end{picture}
+}
+\end{minipage}
+
+The stack pointer is (by convention) always stored in register \$29,
+and the stack grows towards smaller addresses. The picture on the right shows the
+stack immediately after entering the function body. The body instructions might
+call other functions (or \cd{f}, recursively) and make the stack grow 
+further.
+
+The return address register (sometimes called \emph{link register}, used
+by instruction \cd{JAL}) is \$31.
+Note that this is register-allocated code, so the list of live registers 
+for the \cd{JR} instruction can be empty.
+
+The previous example is for a specific function with 3 arguments that uses
+two callee-saves registers ({\tt maxReg}). The code generator of a compiler needs 
+to generate prolog and epilog code for a varying number of arguments and register use.
+%
+Figure~\ref{translateFunction} shows a sketch of how such code might look
+like. If a function uses more parameters than available registers,
+the helper function {\tt movePars} must be extended to pass some arguments
+on the stack instead.
+
+\begin{figure}[tbh]
+\begin{code}[frame=lines,label=\textrm{translating a function}]
+val SP = "29"
+val RA = "31"
+
+fun translateFunction(name, parameters, bodyExp, ftable) =
+  let val body = translateExp(bodyExp, emptyTable, ftable, "2")
+      val body_symb = movePars parameters 2 @ body
+      val (f_body, _, maxReg) =
+            RegAlloc.registerAlloc body_symb ["2"] 2 15 25
+      val (saveCode, restoreCode, frameSize) = saveRestore maxReg
+      val prologue = [Mips.LABEL name, Mips.SW (RA,SP,"-4")]
+                     @ saveCode @
+                     [Mips.ADDI (SP,SP,Int.toString (~frameSize))]
+      val epilogue = [Mips.ADDI (SP,SP,Int.toString frameSize)]
+                     @ restorecode @
+                     [Mips.LW (RA,SP,"-4"), Mips.JR (RA,[])]
+  in prologue @ f_body @ epilogue
+  end
+
+and movePars [] _ = []
+  | movePars (par::pars) reg =
+      Mips.MOVE (par,Int.toString reg) :: movePars pars (reg+1)
+
+and saveRestore reg =
+  if reg<16 then ([],[],4)
+  else let val (save,restore,size) = saveRestore (reg-1)
+           val newSize = size+4
+           val args = (Int.toString reg, SP, int.toString (~newSize))
+       in (Mips.SW args :: save, Mips.LW args :: restore, newSize)
+       end
+\end{code}
+\vspace*{-2em}
+\caption{Code for translating functions}
+\label{translateFunction}
+%\hrulefill
+\end{figure}
+
+\section{MARS, a MIPS simulator}
+
+MARS is an acronym for \emph{MIPS Assembler and Runtime Simulator}, and supports
+a large subset of MIPS instructions. MARS is compatible with the 
+SPIM simulator described in Appendix A.9 of Patterson/Hennessy~\cite{PattersonHennessy}.
+MARS is written in Java and available under the URL
+\url{http://courses.missouristate.edu/kenvollmar/mars/}.
+Its current version is 4.2 (appeared in August 2011).
+An introductory manual can be found at 
+\url{http://courses.missouristate.edu/KenVollmar/MARS/Help/MarsHelpIntro.html}.
+
+MARS can be used to directly assemble and execute a MIPS assembly program, 
+by the following command on the command line:
+\begin{code}[fontsize=\normalsize]
+me@home$ java -jar Mars_4_2.jar program.asm
+\end{code}
+%$
+The executed program will use standard input and output to interact with the user.
+
+MARS also comes with a rich GUI where the machine state during program execution can 
+be observed and the assembly code edited. The GUI starts if MARS is started without
+an additional argument, like so:
+\begin{code}[fontsize=\normalsize]
+me@home$ java -jar Mars_4_2.jar
+\end{code}
+%$
+
+The following things should be noted when using MARS:
+
+\begin{itemize}
+\item Registers \$1, \$26 and \$27 are reserved for expanding pseudo-instructions
+	(such as \cd{la}) and for the operating system, respectively.
+
+\item The stack pointer (\$29) is initialised at program start and does not 
+	need re-initialisation.
+
+\item The stack pointer points to the top element, so new stack elements need to be
+	written to the address \emph{4 bytes below} the current SP (offset 4 on 
+	32-bit architectures).
+
+\item Global variables, tables, and other data created at runtime, should be
+	placed in a data segment of the assembly, and grow upward in memory from the
+	start of the data segment.
+
+\end{itemize}
+
+\begin{thebibliography}{1}
+
+\bibitem{PattersonHennessy}
+David~A. Patterson and John~L. Hennessy.
+\newblock {\em Computer Organization \& Design, the Hardware/Software
+  Interface}.
+\newblock Morgan Kaufmann, 1998.
+\newline
+\newblock Appendix A is freely available at 
+\url{http://www.cs.wisc.edu/~larus/HP_AppA.pdf}.
+
+\end{thebibliography}
+
+\end{document}

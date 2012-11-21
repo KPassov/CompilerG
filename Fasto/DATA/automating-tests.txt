@@ -1,0 +1,15 @@
+# at top level, do this:
+#
+# (can be run like this: 
+# $ source DATA/automating-tests.txt
+#
+
+make all
+
+BIN/FastoC DATA/testRead
+java -jar ../Mars_4_2.jar DATA/testRead.asm < DATA/testRead.in \
+     | diff -s DATA/testRead.out  -
+
+# needs to have testRead.in prepared, and generate testRead.out like so once:
+#java -jar ../Mars_4_2.jar DATA/testRead.asm < DATA/testRead.in > DATA/testRead.out
+

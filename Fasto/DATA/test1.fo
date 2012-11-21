@@ -1,0 +1,28 @@
+fun int writeInt(int i) = write(i)
+
+fun int writeArrInt([int] arr) = 
+    let a = write(" { ") in let a = map(writeInt, arr) in let a = write(" } ") in 1
+
+fun int writeArrArrInt([[int]] arr) = 
+    let a = write(" { ") in let v = map(writeArrInt, arr) in let a = write(" } ") in 1
+
+fun int plus2(int x) = x + 2
+
+fun [int] plus2vect([int] x) = map(plus2, x)
+
+fun int main() = 
+    let a = { {1+1, 1+2, 1+3}, {2+3, 2+4, 2+5, 2+6, 2+7} } in
+//    let b = write("mamam\n") in let c = write(b[4]) in 1
+//    let b = a[1] in let c = write(b[4]) in
+//    let b = iota(3+4) in write(b[6])
+//    let b = replicate(3+4, 5) in write(b[6])
+//    let b = replicate(3, a) in let c = b[1] in let d = c[1] in write(d[4]) 
+      let b = replicate(3, a) in let x = writeArrArrInt(b[2]) in
+//    let aa = a[1] in writeArrInt(aa)
+//      let aa = map(plus2, {1,2,3,4,5}) in write(aa[4])
+//writeArrInt(a[0])
+//    writeArrArrInt(a)
+    let b = map(plus2vect, a) in let c = writeArrArrInt(b) in 1
+//writeArrInt(b[0])
+
+

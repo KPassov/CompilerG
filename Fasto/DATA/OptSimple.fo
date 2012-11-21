@@ -1,0 +1,25 @@
+fun int plus(int a, int b) = a + b
+
+fun int plus2(int a) = a + 2
+
+fun int plus4(int b) = b + 4
+
+fun [int] plus2Vect ([int]   a) = map(plus2, a)
+
+fun [int] plus4Vect ([int]   a) = map(plus4, a)
+
+fun int plus100(int x) = 
+  x + 100
+
+fun [char] main() = 
+    let x = { {100,102,103}, {104,105,106}, {107,108,109} } in  //lalal
+    let y = map(plus2Vect, x) in 
+    let q = map(plus4Vect, y) in let u = write(map(chr, q[1])) in
+    let N = read(int)        in     // reads N from the keyboard
+    let a = iota(N)          in     // a = { 0,   1, ..., N-1  }
+    let b = map(plus100, a)  in     // b = { 100, 101,.., N+99 }
+    let c = map(chr, b)      in     // "def..."
+    let d = reduce(plus,0,a) in
+    let e = write(ord(c[1])) in
+    let f = write(d)         in
+    write(c)

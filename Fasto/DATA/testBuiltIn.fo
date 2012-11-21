@@ -1,0 +1,18 @@
+fun int writeInt(int a) = 
+    let x = write(a) in 1
+
+fun int writeInts([int] arr) = 
+    let x = write("\n{ ") in
+    let y = map(writeInt, arr) in
+    let z = write(" } \n") in 1
+
+fun int plus(int x, int y) = x + y
+
+fun int main() = 
+    let arr   = {97,98,99,100,101,102} in 
+    let charr = map(chr, arr) in 
+    let x = write(charr) in 
+    let arr2 = map(ord, charr) in
+    let y = writeInts(arr2) in
+    let res = reduce(plus, 0, arr2) in
+    let yy = write(res) in let yyy = write("\n") in yy 

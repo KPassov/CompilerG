@@ -1,0 +1,4 @@
+fun int main() = 
+    let a = iota(0) in 
+    let b = replicate(0, a) in 
+    let c = b[0] in write(c[0])

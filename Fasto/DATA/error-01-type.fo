@@ -1,0 +1,11 @@
+// this is a line comment
+// there are no multiline comments
+
+// This program contains two type errors.
+// Only the first error is reported.
+
+fun bool second(bool random) = (random = 42) // type error, reported
+
+// this will be a type error as well
+fun int main() = write ( "Hello" + read(int) )
+
