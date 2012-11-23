@@ -1,8 +1,4 @@
 {
-    (*self notes:
-    Need to lex tokes: Mutliplication, division, AND OR NOT, True False.
-    
-    *)
   (* Lexer definition for Fasto language *)
   (* boilerplate code for all lexer files... *)
  open Lexing;
@@ -43,6 +39,9 @@
        | "True"         => Parser.TRUE pos
        | "AND"         => Parser.AND pos
        | "OR"           => Parser.OR pos
+       | "zipWith"     => Parser.ZIPWITH pos
+       | "scan"        => Parser.SCAN pos
+       | "length"      => Parser.LENGTH pos
        | _              => Parser.ID (s, pos)
  }
 rule Token = parse
