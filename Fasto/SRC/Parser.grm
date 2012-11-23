@@ -1,16 +1,14 @@
-%token <(int*int)> IF THEN ELSE LET IN INT BOOL CHAR EOF
+%token <(int*int)> IF THEN ELSE LET IN INT BOOL CHAR TRUE FALSE AND OR NOT EOF
 %token <string*(int*int)> ID STRINGLIT
 %token <int*(int*int)> NUM
 %token <char*(int*int)> CHARLIT
-%token <(int*int)> PLUS EQ LTH MINUS
+%token <(int*int)> PLUS EQ LTH MINUS DIV MUL
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
 %token <(int*int)> COMMA
-%token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE
-
+%token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE ZIPWITH SCAN LENGTH
 %nonassoc ifprec letprec
 %left EQ LTH
 %left PLUS MINUS
-
 %start Prog
 %type <Fasto.Prog> Prog
 %type <Fasto.FunDec list> FunDecs
@@ -19,39 +17,34 @@
 %type <Fasto.Binding list> TypeIds
 %type <Fasto.Exp> Exp
 %type <Fasto.Exp list> Exps
-
 %%
-
-Prog :	  FunDecs EOF   { $1 }
+Prog :      FunDecs EOF   { $1 }
 ;
-
 FunDecs : FUN Fun FunDecs   { $2 :: $3 }
         | FUN Fun           { $2 :: [] }
 ;
-
 Fun :     Type ID LPAR TypeIds RPAR EQ Exp 
-			{ (#1 $2, $1, $4, $7, #2 $2) }
+            { (#1 $2, $1, $4, $7, #2 $2) }
         | Type ID LPAR RPAR EQ Exp 
-			{ (#1 $2, $1, [], $6, #2 $2) }
+            { (#1 $2, $1, [], $6, #2 $2) }
 ;
-
-Type :	  INT		{ Fasto.Int $1 }
+Type :      INT        { Fasto.Int $1 }
         | BOOL          { Fasto.Bool $1 }
         | CHAR          { Fasto.Char $1 }
         | LBRACKET Type RBRACKET { Fasto.Array ($2, $1) }
 ;
-
 TypeIds : Type ID COMMA TypeIds
                         { (#1 $2, $1) :: $4 }
         | Type ID       { (#1 $2, $1) :: [] }
 ;
-
-Exp :	  NUM            { Fasto.Num $1 }
+Exp :      NUM            { Fasto.Num $1 }
         | ID             { Fasto.Var $1 }
         | CHARLIT        { Fasto.CharLit $1 }
         | STRINGLIT      { Fasto.StringLit $1 }
         | LCURLY Exps RCURLY
                          { Fasto.ArrayLit ($2, Fasto.UNKNOWN, $1) }
+        | Exp DIV Exp { Fasto.Div ($1, $3, $2) }
+        | Exp MUL Exp { Fasto.Mul ($1, $3, $2) }
         | Exp PLUS  Exp  { Fasto.Plus ($1, $3, $2) }
         | Exp MINUS Exp  { Fasto.Minus($1, $3, $2) }
         | Exp EQ    Exp  { Fasto.Equal($1, $3, $2) }
@@ -60,14 +53,11 @@ Exp :	  NUM            { Fasto.Num $1 }
                          { Fasto.If ($2, $4, $6, $1) }
         | ID LPAR Exps RPAR
                         { Fasto.Apply (#1 $1, $3, #2 $1) }
-
         | ID LPAR RPAR  { Fasto.Apply (#1 $1, [], #2 $1) }
-
         | READ LPAR Type RPAR
                         { Fasto.Read ($3, $1) }
         | WRITE LPAR Exp RPAR
                         { Fasto.Write ($3, Fasto.UNKNOWN, $1) }
-
         | IOTA LPAR Exp RPAR
                         { Fasto.Iota ($3, $1) }
         | REPLICATE LPAR Exp COMMA Exp RPAR
@@ -77,13 +67,11 @@ Exp :	  NUM            { Fasto.Num $1 }
         | MAP LPAR ID COMMA Exp RPAR
                         { Fasto.Map (#1 $3, $5, 
                                      Fasto.UNKNOWN, Fasto.UNKNOWN, $1) }
-
         | LPAR Exp RPAR { $2 }
         | LET ID EQ Exp IN Exp %prec letprec
                         { Fasto.Let (Fasto.Dec (#1 $2, $4, $3), $6, $1) }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
 ;
-
 Exps : Exp COMMA Exps   { $1 :: $3 }
     |  Exp              { $1 :: [] }
