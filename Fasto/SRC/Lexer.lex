@@ -34,11 +34,9 @@
        | "reduce"      => Parser.REDUCE pos
        | "read"         => Parser.READ pos
        | "write"        => Parser.WRITE pos    
-       | "NOT"        =>  Parser.NOT pos
+       | "not"        =>  Parser.NOT pos
        | "False"       => Parser.FALSE pos
        | "True"         => Parser.TRUE pos
-       | "AND"         => Parser.AND pos
-       | "OR"           => Parser.OR pos
        | "zipWith"     => Parser.ZIPWITH pos
        | "scan"        => Parser.SCAN pos
        | "length"      => Parser.LENGTH pos
@@ -70,6 +68,9 @@ rule Token = parse
                               String.size s - 2)),
                  getPos lexbuf) }
   | `*`                 { Parser.MUL (getPos lexbuf) }
+  | `|`                 { Parser.OR (getPos lexbuf) }
+  | `&`                 { Parser.AND (getPos lexbuf) }
+  | `~`			{ Parser.NEG (getPos lexbuf) }
   | `/`                  { Parser.DIV (getPos lexbuf) }
   | `+`                 { Parser.PLUS (getPos lexbuf) }
   | `-`                  { Parser.MINUS(getPos lexbuf) }
