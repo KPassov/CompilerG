@@ -1,19 +1,8 @@
-S -> S + F
-    |   S -  F
-    |   F
-    |
-F -> F * D
-    |   F / D
-    |   D
-D -> (S)
-    | NUM
-    |
-
-%token <(int*int)> IF THEN ELSE LET IN INT BOOL CHAR TRUE FALSE AND OR NOT EOF
+%token <(int*int)> IF THEN ELSE LET IN INT BOOL CHAR TRUE FALSE EOF
 %token <string*(int*int)> ID STRINGLIT
 %token <int*(int*int)> NUM
 %token <char*(int*int)> CHARLIT
-%token <(int*int)> PLUS EQ LTH MINUS DIV MUL
+%token <(int*int)> NEQ DIV MUL PLUS EQ LTH MINUS NOT AND OR 
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
 %token <(int*int)> COMMA
 %token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE ZIPWITH SCAN LENGTH
