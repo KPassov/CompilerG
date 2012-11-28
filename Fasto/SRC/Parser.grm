@@ -2,7 +2,7 @@
 %token <string*(int*int)> ID STRINGLIT
 %token <int*(int*int)> NUM
 %token <char*(int*int)> CHARLIT
-%token <(int*int)> NEQ DIV MUL PLUS EQ LTH MINUS NOT AND OR 
+%token <(int*int)> NEG DIV MUL PLUS MINUS EQ LTH NOT AND OR
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
 %token <(int*int)> COMMA
 %token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE ZIPWITH SCAN LENGTH
@@ -79,7 +79,6 @@ Exp :      NUM            { Fasto.Num $1 }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
 ;
-        | Exp DIV Exp { Fasto.Div ($1, $3, $2) }
-        | Exp MUL Exp { Fasto.Mul ($1, $3, $2) }
 Exps : Exp COMMA Exps   { $1 :: $3 }
     |  Exp              { $1 :: [] }
+;
