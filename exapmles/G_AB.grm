@@ -1,0 +1,94 @@
+%{
+   (* See the Moscow ML manual for the syntax and structure. Roughly:
+
+    `%``{`
+         header (* with ML-like comments *)
+    `%``}`
+        declarations  /* with c-like comments */
+    `%``%`
+        rules         /* with c-like comments */
+    `%``%`
+        trailer (* with ML-like comments *)
+    EOF
+
+    The (optional) header and trailer contain ML code to include in the
+    generated file (after the data declaration and at the end).
+
+    Compiling this file with:
+        $ mosmlyac -v G_AB.grm
+    will generate the code in "G_AB.sig" and "G_AB.sml" files, and a
+    file "G_AB.output" which describes the generated LR(0) automaton.
+    *)
+
+    type pos = int (* position in string *)
+    (* Unfortunately, we cannot use this type in the declarations -
+       the code ends up _after_ the data declaration. *)
+
+    (* parse exception *)
+    exception ParseErr of string * pos
+%}
+
+/* Token type definitions (will often be used in the Lexer) */
+
+/* Tokens use position attribute for demonstration (see below for Lexer)
+ * As mentioned, the SML code above ends up _after_ this data declaration,
+ * so we cannot use any types defined _above_ at this point of the file.
+ */
+%token < int > CharA CharB
+%token < int > EOF
+
+/* start symbol */
+%start Start
+
+/* types returned by rules below */
+%type <int*int>  Start
+%type <int> A
+%type <int> B
+
+%%
+
+/* rules - a separate start rule is added automatically */
+Start : A B EOF         { print "reduce 1\n";($1,$2) }
+
+A     : CharA A CharB   { print "reduce 2\n";1+$2 }
+      |                 { print "reduce 3\n";0    }
+
+B     : CharB B         { print "reduce 4\n";1+$2 }
+      |                 { print "reduce 5\n";0    }
+
+%%
+
+(* SML trailer
+
+ At this point we can use the parse function (%start above), whose type is
+   Start : (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Exp;
+
+  (Lexing.lexbuf -> token) is usually mosmllex-generated, but a simple hack
+  here.
+
+*)
+
+  (* hacking a fake "lexer" that just reads characters *)
+  fun token (#"a",pos) = (CharA pos)
+    | token (#"b",pos) = (CharB pos)
+    | token ( c  ,pos) = raise ParseErr ("No token " ^ makestring c, pos)
+
+  val lexhackTokens = ref []
+  fun lexhackInit s 
+    = let val cs = String.explode s
+          val ps = List.tabulate (String.size s, fn x=>x)
+      in lexhackTokens := ListPair.map token (cs, ps) @ [EOF (String.size s)]
+      end
+
+  fun lexhackNexttoken _ 
+    = let val ts = !lexhackTokens
+      in case ts of
+             []        => (EOF 0)
+           | (t::rest) => (lexhackTokens := rest; t)
+      end
+
+  fun parse s = let val fakebuf = Lexing.createLexerString s (* not used *)
+                in lexhackInit s; Start lexhackNexttoken fakebuf
+                end
+                 handle ParseErr (msg,pos) 
+                        => (print (msg ^ makestring pos); (0,0))
