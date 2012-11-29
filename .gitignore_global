@@ -11,7 +11,8 @@
 *.output
 *.sig
 *.swp
-*.sml
+Lexer.sml
+Parser.sml
 
 # Packages #
 ############
