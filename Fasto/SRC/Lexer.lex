@@ -67,22 +67,22 @@ rule Token = parse
                  | SOME s => String.substring(s,1,
                               String.size s - 2)),
                  getPos lexbuf) }
-  | `*`                 { Parser.MUL (getPos lexbuf) }
+  | `*`                 { Parser.TIMES (getPos lexbuf) }
   | `|`                 { Parser.OR (getPos lexbuf) }
   | `&`                 { Parser.AND (getPos lexbuf) }
-  | `~`			{ Parser.NEG (getPos lexbuf) }
-  | `/`                  { Parser.DIV (getPos lexbuf) }
+  | `~`			        { Parser.NEGATE (getPos lexbuf) }
+  | `/`                 { Parser.DIVIDE (getPos lexbuf) }
   | `+`                 { Parser.PLUS (getPos lexbuf) }
-  | `-`                  { Parser.MINUS(getPos lexbuf) }
+  | `-`                 { Parser.MINUS(getPos lexbuf) }
   | `=`                 { Parser.EQ (getPos lexbuf) }
   | `<`                 { Parser.LTH(getPos lexbuf) }
-  | `(`                  { Parser.LPAR (getPos lexbuf) }
-  | `)`                  { Parser.RPAR (getPos lexbuf) }
+  | `(`                 { Parser.LPAR (getPos lexbuf) }
+  | `)`                 { Parser.RPAR (getPos lexbuf) }
   | `[`                 { Parser.LBRACKET (getPos lexbuf) }
   | `]`                 { Parser.RBRACKET (getPos lexbuf) }
   | `{`                 { Parser.LCURLY (getPos lexbuf) }
   | `}`                 { Parser.RCURLY (getPos lexbuf) }
   | `,`                 { Parser.COMMA (getPos lexbuf) }
-  | eof                { Parser.EOF (getPos lexbuf) }
+  | eof                 { Parser.EOF (getPos lexbuf) }
   | _                   { lexerError lexbuf "Illegal symbol in input" }
 ;

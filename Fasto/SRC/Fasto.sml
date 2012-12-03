@@ -51,13 +51,15 @@ struct
                                                    (* Type is the type of the to-be-read element *)
     | Write of Exp * Type * pos                  (* e.g., write(map(f, replicate(3,x))) *)
                                                    (* Type is the type of the to-be-written element *)
-(* extension in G exercise
+
     | Times of Exp * Exp * pos
     | Divide of Exp * Exp * pos
     | And of Exp * Exp * pos
     | Or of Exp * Exp * pos
     | Not of Exp * pos
     | Negate of Exp * pos
+
+ (* extension in G exercise   
     
     (* second-order-array combinators *)
     | ZipWith of string * Exp * Exp * Type * Type * Type * pos  (* zipWith(plus, {1,2,3}, {4,5,6}) == {5, 7, 9} *)
@@ -93,12 +95,14 @@ struct
             [ ]    => " { } "
           | (a::l) => " { "^pp_exp d a^concat (map (fn x => ", "^pp_exp d x) l) ^ " } "
         )
-    | pp_exp d (Var   (id, pos))     = id
-    | pp_exp d (Plus  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " + " ^ pp_exp d e2 ^ " ) "
-    | pp_exp d (Minus (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " - " ^ pp_exp d e2 ^ " ) "
-    | pp_exp d (Equal (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " = " ^ pp_exp d e2 ^ " ) "
-    | pp_exp d (Less  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " < " ^ pp_exp d e2 ^ " ) "
-    | pp_exp d (If    (e1, e2, e3, pos))  = "\n" ^
+    | pp_exp d (Var    (id, pos))     = id
+    | pp_exp d (Plus   (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " + " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Minus  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " - " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Divide (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " / " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Times  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " * " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Equal  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " = " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Less   (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " < " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (If     (e1, e2, e3, pos))  = "\n" ^
                 makeDepth (d+1) ^ "if( " ^ pp_exp d e1 ^ " )\n" ^
 		makeDepth (d+2) ^ "then " ^ pp_exp (d+2) e2 ^ "\n" ^
                 makeDepth (d+2) ^ "else " ^ pp_exp (d+2) e3 ^ "\n" ^

@@ -2,7 +2,7 @@
 %token <string*(int*int)> ID STRINGLIT
 %token <int*(int*int)> NUM
 %token <char*(int*int)> CHARLIT
-%token <(int*int)> NEG DIV MUL PLUS MINUS EQ LTH NOT AND OR
+%token <(int*int)> NEGATE DIVIDE TIMES PLUS MINUS EQ LTH NOT AND OR
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
 %token <(int*int)> COMMA
 %token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE ZIPWITH SCAN LENGTH
@@ -12,8 +12,8 @@
 %nonassoc NOT
 %left EQ LTH
 %left PLUS MINUS
-%left DIV MUL
-%nonassoc NEG
+%left DIVIDE TIMES
+%nonassoc NEGATE
 %start Prog
 %type <Fasto.Prog> Prog
 %type <Fasto.FunDec list> FunDecs
@@ -21,7 +21,6 @@
 %type <Fasto.Type> Type
 %type <Fasto.Binding list> TypeIds
 %type <Fasto.Exp> Exp
-%type <Fasto.Exp2> Exp2
 %type <Fasto.Exp list> Exps
 %%
 Prog :    FunDecs EOF   { $1 }
@@ -49,16 +48,16 @@ Exp :     NUM            { Fasto.Num $1 }
         | STRINGLIT      { Fasto.StringLit $1 }
         | LCURLY Exps RCURLY
                          { Fasto.ArrayLit ($2, Fasto.UNKNOWN, $1) }
-        | Exp OR Exp { Fasto.Or($1, $3, $2) }
-        | Exp AND Exp { Fasto.And($1, $3, $2) }
-        | NOT Exp {Fasto.Not(?) }
-        | Exp EQ    Exp  { Fasto.Equal($1, $3, $2) }
-        | Exp LTH   Exp  { Fasto.Less ($1, $3, $2) }
-        | Exp PLUS  Exp  { Fasto.Plus ($1, $3, $2) }
-        | Exp MINUS Exp  { Fasto.Minus($1, $3, $2) }
-        | Exp DIV Exp { Fasto.Div($1, $3, $2) }
-        | Exp MUL Exp { Fasto.Mul($1, $3, $2) }
-        | NEG Exp {Fasto.Neg(?) }
+        | Exp OR     Exp { Fasto.Or($1, $3, $2) }
+        | Exp AND    Exp { Fasto.And($1, $3, $2) }
+        | NOT        Exp { Fasto.Not($2, $1) }
+        | Exp EQ     Exp { Fasto.Equal($1, $3, $2) }
+        | Exp LTH    Exp { Fasto.Less ($1, $3, $2) }
+        | Exp PLUS   Exp { Fasto.Plus ($1, $3, $2) }
+        | Exp MINUS  Exp { Fasto.Minus($1, $3, $2) }
+        | Exp DIVIDE Exp { Fasto.Divide($1, $3, $2) }
+        | Exp TIMES  Exp { Fasto.Times($1, $3, $2) }
+        | NEGATE     Exp { Fasto.Negate($2, $1) }
         | IF Exp THEN Exp ELSE Exp %prec ifprec
                          { Fasto.If ($2, $4, $6, $1) }
         | ID LPAR Exps RPAR
@@ -82,10 +81,10 @@ Exp :     NUM            { Fasto.Num $1 }
                         { Fasto.Let (Fasto.Dec (#1 $2, $4, $3), $6, $1) }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
-        | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR
-                        { Fasto.ZipWith () }
-        | SCAN LPAR ID COMMA ID COMMA Exp RPAR
-                        { Fasto.Scan () }
+        /* | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR */
+                        /* { Fasto.ZipWith () } */
+        /* | SCAN LPAR ID COMMA ID COMMA Exp RPAR */
+                        /* { Fasto.Scan () } */
 ;
 Exps : Exp COMMA Exps   { $1 :: $3 }
     |  Exp              { $1 :: [] }
