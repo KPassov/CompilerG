@@ -16,7 +16,6 @@ Parser.sml
 *-testresult
 *.asm
 BIN
-test
 
 # Packages #
 ############
