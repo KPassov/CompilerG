@@ -24,7 +24,7 @@
 %type <Fasto.Exp2> Exp2
 %type <Fasto.Exp list> Exps
 %%
-Prog :      FunDecs EOF   { $1 }
+Prog :    FunDecs EOF   { $1 }
 ;
 FunDecs : FUN Fun FunDecs   { $2 :: $3 }
         | FUN Fun           { $2 :: [] }
@@ -34,7 +34,7 @@ Fun :     Type ID LPAR TypeIds RPAR EQ Exp
         | Type ID LPAR RPAR EQ Exp 
             { (#1 $2, $1, [], $6, #2 $2) }
 ;
-Type :      INT        { Fasto.Int $1 }
+Type :    INT        { Fasto.Int $1 }
         | BOOL          { Fasto.Bool $1 }
         | CHAR          { Fasto.Char $1 }
         | LBRACKET Type RBRACKET { Fasto.Array ($2, $1) }
@@ -43,22 +43,22 @@ TypeIds : Type ID COMMA TypeIds
                         { (#1 $2, $1) :: $4 }
         | Type ID       { (#1 $2, $1) :: [] }
 ;
-Exp :      NUM            { Fasto.Num $1 }
+Exp :     NUM            { Fasto.Num $1 }
         | ID             { Fasto.Var $1 }
         | CHARLIT        { Fasto.CharLit $1 }
         | STRINGLIT      { Fasto.StringLit $1 }
         | LCURLY Exps RCURLY
                          { Fasto.ArrayLit ($2, Fasto.UNKNOWN, $1) }
-        | Exp DIV Exp { Fasto.Div($1, $3, $2) }
-        | Exp MUL Exp { Fasto.Mul($1, $3, $2) }
-        | Exp PLUS  Exp  { Fasto.Plus ($1, $3, $2) }
-        | Exp MINUS Exp  { Fasto.Minus($1, $3, $2) }
-        | Exp AND Exp { Fasto.And($1, $3, $2) }
         | Exp OR Exp { Fasto.Or($1, $3, $2) }
+        | Exp AND Exp { Fasto.And($1, $3, $2) }
         | NOT Exp {Fasto.Not(?) }
-        | NEG Exp {Fasto.Neg(?) }
         | Exp EQ    Exp  { Fasto.Equal($1, $3, $2) }
         | Exp LTH   Exp  { Fasto.Less ($1, $3, $2) }
+        | Exp PLUS  Exp  { Fasto.Plus ($1, $3, $2) }
+        | Exp MINUS Exp  { Fasto.Minus($1, $3, $2) }
+        | Exp DIV Exp { Fasto.Div($1, $3, $2) }
+        | Exp MUL Exp { Fasto.Mul($1, $3, $2) }
+        | NEG Exp {Fasto.Neg(?) }
         | IF Exp THEN Exp ELSE Exp %prec ifprec
                          { Fasto.If ($2, $4, $6, $1) }
         | ID LPAR Exps RPAR
@@ -82,6 +82,10 @@ Exp :      NUM            { Fasto.Num $1 }
                         { Fasto.Let (Fasto.Dec (#1 $2, $4, $3), $6, $1) }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
+        | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR
+                        { Fasto.ZipWith () }
+        | SCAN LPAR ID COMMA ID COMMA Exp RPAR
+                        { Fasto.Scan () }
 ;
 Exps : Exp COMMA Exps   { $1 :: $3 }
     |  Exp              { $1 :: [] }
