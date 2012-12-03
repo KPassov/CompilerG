@@ -81,10 +81,10 @@ Exp :     NUM            { Fasto.Num $1 }
                         { Fasto.Let (Fasto.Dec (#1 $2, $4, $3), $6, $1) }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
-        /* | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR */
-                        /* { Fasto.ZipWith () } */
-        /* | SCAN LPAR ID COMMA ID COMMA Exp RPAR */
-                        /* { Fasto.Scan () } */
+        | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR 
+                         { Fasto.ZipWith (#1 $3, $5, $7, Fasto.UNKNOWN, Fasto.UNKNOWN, Fasto.UNKNOWN, $1) } 
+        | SCAN LPAR ID COMMA Exp COMMA Exp RPAR 
+                         { Fasto.Scan (#1 $3, $5, $7, Fasto.UNKNOWN, $1) }
 ;
 Exps : Exp COMMA Exps   { $1 :: $3 }
     |  Exp              { $1 :: [] }

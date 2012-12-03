@@ -59,7 +59,6 @@ struct
     | Not of Exp * pos
     | Negate of Exp * pos
 
- (* extension in G exercise   
     
     (* second-order-array combinators *)
     | ZipWith of string * Exp * Exp * Type * Type * Type * pos  (* zipWith(plus, {1,2,3}, {4,5,6}) == {5, 7, 9} *)
@@ -67,6 +66,7 @@ struct
                                                                    (* The second Type is the second input-array element type *)
     | Scan of string * Exp * Exp * Type * pos                   (* scan plus 0 { 1, 2, 3 } = { 0, 1, 3, 6 } *)
                                                                    (* Type is the input-array element type *)
+ (* extension in G exercise   
 *)
 
   and Dec = Dec of string * Exp * pos
