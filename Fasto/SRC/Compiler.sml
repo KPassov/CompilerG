@@ -65,7 +65,7 @@ struct
    
   
   fun check_bounds(arr_beg, ind_reg, (line,c), arr_szeCB, arr_label1, arr_label2) =[
-	Mips.LW(arr_szeCB, arr_beg , "0"), Mips.BGEZ(ind_reg,arr_label1),
+	Mips.LW(arr_szeCB, arr_beg , "0"),Mips.BGEZ(ind_reg,arr_label1),
 	Mips.SUB(ind_reg,ind_reg,arr_szeCB), Mips.ADDI(ind_reg,ind_reg,"-1"), (*ind-length<0 >*)
 	Mips.BGEZ(ind_reg,arr_label2), 
 	Mips.LABEL(arr_label1), Mips.J "_IndexOutOfBoundsError_", 
@@ -427,6 +427,7 @@ struct
 		val arr_szeCB = "_arr_szeCB_"^newName()
 		val arr_label1 = "_arr_label1CB_"^newName()
 		val arr_label2 = "_arr_label2CB_"^newName()
+		val arr_label22 = "_arr_label2CB2_"^newName()
                 val check_code = check_bounds(arr_beg, ind, pos, arr_szeCB, arr_label1, arr_label2) 
                    (* for INT/ARRAY: ind *= 4 else ind is unchanged *)
                     (* array_var += index; place = *array_var *)
