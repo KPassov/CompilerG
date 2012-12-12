@@ -246,6 +246,20 @@ struct
             val code2 = compileExp e2 vtable t2
         in  code1 @ code2 @ [Mips.SUB (place,t1,t2)]
         end
+    | Fasto.Times (e1,e2,pos)=>
+        let val t1 = "_times1_"^newName()
+            val t2 = "_times2_"^newName()
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+        in  code1 @ code2 @ [Mips.MUL (place,t1,t2)]
+        end
+    | Fasto.Divide (e1,e2,pos)=>
+        let val t1 = "_divide1_"^newName()
+            val t2 = "_divide2_"^newName()
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+        in  code1 @ code2 @ [Mips.DIV (place,t1,t2)]
+        end
     | Fasto.Let (dec,e1,(line,col)) =>
         let val (code1, vtable1) = compileDec dec vtable
             val code2 = compileExp e1 vtable1 place
@@ -517,6 +531,7 @@ struct
            header   @ ApplyRegs(bop,[place,tmp_reg],place,pos) @ 
            [ Mips.ADDI(i_reg,i_reg,"1"), Mips.J loop_beg, Mips.LABEL loop_end ]
         end
+    | _ => raise Error("You should not be able to see this", (0,0))
 
   (**********************************)
   (* pushing arguments on the stack *)
