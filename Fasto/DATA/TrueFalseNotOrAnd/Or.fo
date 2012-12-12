@@ -1,8 +1,8 @@
-fun int main() = let a = False || True in
+fun bool main() = let a = False | True in
                  let b = write(a) in
-                 let c = True || False in
+                 let c = True | False in
                  let d = write(c) in
-                 let e = True || True in
+                 let e = True | True in
                  let f = write(e) in
-                 let g = False || False in
+                 let g = False | False in
                  write(g)

@@ -89,6 +89,7 @@ struct
     | pp_exp d (Log   (b,  pos))        = Bool.toString b
     | pp_exp d (CharLit (c,  pos))      = "'" ^ Char.toCString c ^ "'"
     | pp_exp d (StringLit (s,  pos))    = "\"" ^ String.toCString s ^ "\""
+    | pp_exp d (Not   (b, pos))         = Bool.toString b
     | pp_exp d (ArrayLit (lst, t, pos)) = 
         ( case lst of
             [ ]    => " { } "
@@ -101,6 +102,8 @@ struct
     | pp_exp d (Times  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " * " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (Equal  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " = " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (Less   (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " < " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Or     (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " | " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (And    (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " & " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (If     (e1, e2, e3, pos))  = "\n" ^
                 makeDepth (d+1) ^ "if( " ^ pp_exp d e1 ^ " )\n" ^
 		makeDepth (d+2) ^ "then " ^ pp_exp (d+2) e2 ^ "\n" ^
