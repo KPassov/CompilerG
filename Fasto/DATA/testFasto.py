@@ -16,7 +16,7 @@ TOP = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 MARS = os.environ.get('MARS', os.path.join(TOP, 'mars.jar'))
 if not os.path.exists(MARS):
     MARS = None
-C100 = os.path.join(TOP, 'C100')
+CFasto = os.path.join(TOP, 'compile.sh')
 
 class TestFileError(Exception):
     def __init__(self, testfile, msg):
@@ -80,9 +80,9 @@ class TestFile(object):
             self.test_ast(sections)
 
     def compile_and_test(self, sections):
-        if not os.path.exists(self.base + '.100'):
+        if not os.path.exists(self.base + '.fo'):
             return
-        p = Popen([C100, self.base], stdout=PIPE, stderr=STDOUT)
+        p = Popen([CFasto, self.base], stdout=PIPE, stderr=STDOUT)
         self.print_test('compile')
         output = p.communicate()[0].decode()
         result = self.compare_output(output, sections, 'compile')
@@ -155,12 +155,12 @@ class TestFile(object):
         self.fd.close()
 
 if __name__ == '__main__':
-    usage = 'test.py [options] TESTFILE.100...'
-    parser = optparse.OptionParser(usage, description='Test 100 compiler.')
+    usage = 'test.py [options] TESTFILE.fo...'
+    parser = optparse.OptionParser(usage, description='Test Fasto compiler.')
     parser.add_option('-M', '--mars', dest='mars', action='store',
                       help='path to the MARS jar file')
     parser.add_option('-C', '--compiler', dest='compiler', action='store',
-                      help='path to the 100 compiler')
+                      help='path to the Fasto compiler')
 
     (options, args) = parser.parse_args()
     if options.mars is not None:
@@ -168,12 +168,12 @@ if __name__ == '__main__':
     if options.compiler is not None:
         C100 = options.compiler
     if args:
-        files = [f for f in args if f.endswith('.100')]
+        files = [f for f in args if f.endswith('.fo')]
     else:
-        files = glob.glob('*.100')
+        files = glob.glob('*.fo')
 
-    if not os.path.exists(C100):
-        print('\n\033[1;31mCould not find 100 compiler at {0}\033[0m\n'
+    if not os.path.exists(CFasto):
+        print('\n\033[1;31mCould not find Fasto compiler at {0}\033[0m\n'
               .format(C100))
         exit(1)
 
