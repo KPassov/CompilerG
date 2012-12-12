@@ -145,8 +145,6 @@ fun bindTypeIds ([], [], fid, pd, pc) = SymTab.empty()
 
 fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
   | evalExp ( Log      (b,    pos), vtab, ftab ) = Log     (b,pos)
-  | evalExp ( True     (b,    pos), vtab, ftab ) = True    (b,pos)
-  | evalExp ( False    (b,    pos), vtab, ftab ) = False   (b,pos)
   | evalExp ( CharLit  (c,    pos), vtab, ftab ) = CharLit (c,pos)
   | evalExp ( ArrayLit (l, t, pos), vtab, ftab ) =    (* ArrayLit(l, t, pos) *)
         let val els = (map (fn x => evalExp(x, vtab, ftab)) l)

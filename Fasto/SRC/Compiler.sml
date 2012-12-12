@@ -64,8 +64,14 @@ struct
   (*********************************************************************)
    
   
-  fun check_bounds(arr_beg, ind_reg, (line,c)) = [
-]
+  fun check_bounds(arr_beg, ind_reg, (line,c), arr_szeCB, arr_label1, arr_label2) =[
+	Mips.LW(arr_szeCB, arr_beg , "0"), Mips.BGEZ(ind_reg,arr_label1),
+	Mips.SUB(ind_reg,ind_reg,arr_szeCB), Mips.ADDI(ind_reg,ind_reg,"-1"), (*ind-length<0 >*)
+	Mips.BGEZ(ind_reg,arr_label2), 
+	Mips.LABEL(arr_label1), Mips.J "_IndexOutOfBoundsError_", 
+	Mips.LABEL(arr_label2)]
+
+(*create register to hold the *)
 
   (****************************************************************************************)
   (* size_reg is the register that stores an int denoting the num of array elements       *)
@@ -395,6 +401,8 @@ struct
             [Mips.LABEL trueLabel, Mips.LI (place,"1"), Mips.LABEL falseLabel]
         end
 
+
+
 (*********************************************************)
 (*** Indexing: 1. generate code to compute the index   ***)
 (***           2. check index within bounds (TO DO)    ***)
@@ -411,12 +419,11 @@ struct
                               | SOME reg_name => reg_name
                 val prolog = [Mips.LW(arr_reg, arr_beg, "4")]
                     (* code to check bounds *)		
-                val check_code = 
-			case tp of
-				Fasto.Char(p) => check_bounds(arr_beg, ind, pos)
-			|	Fasto.Bool(p) => check_bounds(arr_beg, ind, pos)
-			| 	otherwise => check_bounds(arr_beg, ind, pos)
-                    (* for INT/ARRAY: ind *= 4 else ind is unchanged *)
+		val arr_szeCB = "_arr_szeCB_"^newName()
+		val arr_label1 = "_arr_label1CB_"^newName()
+		val arr_label2 = "_arr_label2CB_"^newName()
+                val check_code = check_bounds(arr_beg, ind, pos, arr_szeCB, arr_label1, arr_label2) 
+                   (* for INT/ARRAY: ind *= 4 else ind is unchanged *)
                     (* array_var += index; place = *array_var *)
                 val epilog = 
                     case tp of
@@ -798,6 +805,15 @@ struct
 	 Mips.LA ("4","_cr_"),
 	 Mips.LI ("2","4"), Mips.SYSCALL, (* print CR *)
 	 Mips.J "_stop_",
+	(*Fixed error code for out of bounds error*)
+	Mips.LABEL "_IndexOutOfBoundsError_",
+	 Mips.LA ("4","_IndexOutOfBoundsString_"),
+	 Mips.LI ("2","4"), Mips.SYSCALL, (* print string *)
+	 Mips.MOVE ("4","5"),
+	 Mips.LI ("2","1"), Mips.SYSCALL, (* print line number *)
+	 Mips.LA ("4","_cr_"),
+	 Mips.LI ("2","4"), Mips.SYSCALL, (* print CR *)
+	 Mips.J "_stop_",
          (* Fixed data (for error message) *)
 	 Mips.DATA "",
 	 Mips.LABEL "_cr_",       (* carriage return string *)
@@ -805,7 +821,9 @@ struct
          Mips.LABEL "_space_",
          Mips.ASCIIZ " ",
 	 Mips.LABEL "_IllegalArrSizeString_",
-	 Mips.ASCIIZ "Error: Array size less or equal to 0 at line "]
+	 Mips.ASCIIZ "Error: Array size less or equal to 0 at line ",
+	 Mips.LABEL "_IndexOutOfBoundsString_",
+	 Mips.ASCIIZ "Error: Array index out of bounds at line "]
          (* String literals *)
        @ (Mips.COMMENT "String Literals" :: 
           List.concat stringdata)
