@@ -66,8 +66,8 @@ struct
                                                                    (* The second Type is the second input-array element type *)
     | Scan of string * Exp * Exp * Type * pos                   (* scan plus 0 { 1, 2, 3 } = { 0, 1, 3, 6 } *)
                                                                    (* Type is the input-array element type *)
- (* extension in G exercise   
-*)
+    | Length of string * Exp * Type * pos                       (* length({1,2,3}) = 3 *) 
+                                                                   (* Type is the output Integer *)
 
   and Dec = Dec of string * Exp * pos
 

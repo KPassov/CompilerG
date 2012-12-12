@@ -33,9 +33,9 @@ Fun :     Type ID LPAR TypeIds RPAR EQ Exp
         | Type ID LPAR RPAR EQ Exp 
             { (#1 $2, $1, [], $6, #2 $2) }
 ;
-Type :    INT        { Fasto.Int $1 }
-        | BOOL          { Fasto.Bool $1 }
-        | CHAR          { Fasto.Char $1 }
+Type :    INT                    { Fasto.Int $1 }
+        | BOOL                   { Fasto.Bool $1 }
+        | CHAR                   { Fasto.Char $1 }
         | LBRACKET Type RBRACKET { Fasto.Array ($2, $1) }
 ;
 TypeIds : Type ID COMMA TypeIds
@@ -82,9 +82,11 @@ Exp :     NUM            { Fasto.Num $1 }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
         | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR 
-                         { Fasto.ZipWith (#1 $3, $5, $7, Fasto.UNKNOWN, Fasto.UNKNOWN, Fasto.UNKNOWN, $1) } 
+                        { Fasto.ZipWith (#1 $3, $5, $7, Fasto.UNKNOWN, Fasto.UNKNOWN, Fasto.UNKNOWN, $1) } 
         | SCAN LPAR ID COMMA Exp COMMA Exp RPAR 
-                         { Fasto.Scan (#1 $3, $5, $7, Fasto.UNKNOWN, $1) }
+                        { Fasto.Scan (#1 $3, $5, $7, Fasto.UNKNOWN, $1) }
+        | LENGTH LPAR ID COMMA Exp RPAR  
+                        { Fasto.Length (#1 $3, $5, Fasto.UNKNOWN, $1) }
 ;
 Exps : Exp COMMA Exps   { $1 :: $3 }
     |  Exp              { $1 :: [] }
