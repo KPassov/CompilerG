@@ -361,7 +361,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
             | otherwise => raise Error("Write Can Be Called Only on Basic and Array(Char) Types ", p)
         in e
         end
-  (* | evalExp _  = raise Error("Unimplemented!", (0,0))  *)
+  | evalExp _  = raise Error("Unimplemented!", (0,0)) 
 
 
 (*************************************************************)
