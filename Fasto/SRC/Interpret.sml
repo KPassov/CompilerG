@@ -176,7 +176,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         in  evalBinop(op -, res1, res2, pos)
         end
 
-  | evalExp ( Times(e2, pos), vtab, ftab ) =
+  | evalExp ( Times(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)
             val res2   = evalExp(e2, vtab, ftab)
         in  evalBinop(op -, res1, res2, pos)
