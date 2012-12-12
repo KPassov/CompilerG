@@ -62,8 +62,10 @@ struct
   (* generates the code to check that the array index is within bounds *)
   (* THIS IS SUPPOSED TO BE PART OF THE PROJECT!!!                     *)
   (*********************************************************************)
-
-  fun check_bounds(arr_beg, ind_reg, (line,c)) = []
+   
+  
+  fun check_bounds(arr_beg, ind_reg, (line,c)) = [
+]
 
   (****************************************************************************************)
   (* size_reg is the register that stores an int denoting the num of array elements       *)
@@ -394,8 +396,12 @@ struct
                                 NONE => raise Error ("Name "^x^" not found", pos)
                               | SOME reg_name => reg_name
                 val prolog = [Mips.LW(arr_reg, arr_beg, "4")]
-                    (* code to check bounds *)
-                val check_code = check_bounds(arr_beg, ind, pos)
+                    (* code to check bounds *)		
+                val check_code = 
+			case tp of
+				Fasto.Char(p) => check_bounds(arr_beg, ind, pos)
+			|	Fasto.Bool(p) => check_bounds(arr_beg, ind, pos)
+			| 	otherwise => check_bounds(arr_beg, ind, pos)
                     (* for INT/ARRAY: ind *= 4 else ind is unchanged *)
                     (* array_var += index; place = *array_var *)
                 val epilog = 
