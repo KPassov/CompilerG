@@ -1,7 +1,8 @@
-%token <(int*int)> IF THEN ELSE LET IN INT BOOL CHAR TRUE FALSE EOF
+%token <(int*int)> IF THEN ELSE LET IN INT BOOL CHAR EOF
 %token <string*(int*int)> ID STRINGLIT
 %token <int*(int*int)> NUM
 %token <char*(int*int)> CHARLIT
+%token <bool*(int*int)> TRUE, FALSE
 %token <(int*int)> NEGATE DIVIDE TIMES PLUS MINUS EQ LTH NOT AND OR
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
 %token <(int*int)> COMMA
@@ -46,6 +47,8 @@ Exp :     NUM            { Fasto.Num $1 }
         | ID             { Fasto.Var $1 }
         | CHARLIT        { Fasto.CharLit $1 }
         | STRINGLIT      { Fasto.StringLit $1 }
+	| TRUE		 { Fasto.Log $1}		
+	| FALSE		 { Fasto.Log $1}		
         | LCURLY Exps RCURLY
                          { Fasto.ArrayLit ($2, Fasto.UNKNOWN, $1) }
         | Exp OR     Exp { Fasto.Or($1, $3, $2) }
