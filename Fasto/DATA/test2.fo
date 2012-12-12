@@ -1,0 +1,7 @@
+fun int main() = let a = 3 + 3 * 3 in
+                 let b = 3 * 3 + 3 in
+                 if a = b
+                     then write(1)
+                     else write(0)
+                          
+                 

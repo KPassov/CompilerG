@@ -1,0 +1,9 @@
+fun int times(int a) = a * 2
+
+fun int divide(int a) = a / 2
+
+fun int main() =
+        let div = divide(8) in
+        write(div)
+        let mul = times(2) in
+        write(mul)
