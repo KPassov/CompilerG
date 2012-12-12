@@ -13,10 +13,11 @@ from difflib import unified_diff
 from collections import defaultdict
 
 TOP = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
+SRC = os.path.join(TOP, 'SRC')
 MARS = os.environ.get('MARS', os.path.join(TOP, 'mars.jar'))
 if not os.path.exists(MARS):
     MARS = None
-CFasto = os.path.join(TOP, 'compile.sh')
+CFasto = os.path.join(TOP, 'BIN/FastoC')
 
 class TestFileError(Exception):
     def __init__(self, testfile, msg):
@@ -101,7 +102,7 @@ class TestFile(object):
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         stdin = ''.join(sections['stdin']).encode() if 'stdin' in sections else None
         stdout, stderr = p.communicate(stdin)
-        stdout = stdout.decode()
+        stdout = stdout.decode('utf-8')
         stderr = stderr.decode()
         results = []
         if 'stdout' in sections:
@@ -166,15 +167,15 @@ if __name__ == '__main__':
     if options.mars is not None:
         MARS = options.mars
     if options.compiler is not None:
-        C100 = options.compiler
+        CFasto = options.compiler
     if args:
         files = [f for f in args if f.endswith('.fo')]
     else:
-        files = glob.glob('*.fo')
+        files = glob.glob('*/*.fo')
 
     if not os.path.exists(CFasto):
         print('\n\033[1;31mCould not find Fasto compiler at {0}\033[0m\n'
-              .format(C100))
+              .format(CFasto))
         exit(1)
 
     tests = [TestFile(f) for f in sorted(files)]

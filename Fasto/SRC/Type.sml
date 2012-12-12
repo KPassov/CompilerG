@@ -266,6 +266,7 @@ struct
               else raise Error ("Replicate: wrong argument type "
                                 ^ showType n_type, pos)
            end
+    | _ => raise Error("Unknown type given by syntex tree", (0,0))
                
                
 

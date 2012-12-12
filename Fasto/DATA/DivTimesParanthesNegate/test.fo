@@ -1,0 +1,4 @@
+fun int main() = let a = 3 * 3 in
+                 let b = 9 / 3 in
+                 let c = write(a) in
+                 write(b)

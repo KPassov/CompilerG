@@ -1,0 +1,4 @@
+fun int main() = let a = false in
+                 if a
+                    then write(0)
+                    else write(1)

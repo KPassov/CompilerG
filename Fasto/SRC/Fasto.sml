@@ -124,6 +124,7 @@ struct
     | pp_exp d (Replicate(e, el, t, pos)) = "replicate ( "^pp_exp d e^", "^pp_exp d el^" ) " 
     | pp_exp d (Read (t,p)) = "read(" ^pp_type t ^") "
     | pp_exp d (Write (e,t,p)) = "write(" ^pp_exp d e ^") "
+    | pp_exp d (_) = "Error unknown input from Parser.sml" 
 
   (* pretty printing a type *)
   and pp_type (Int  pos) = "int "

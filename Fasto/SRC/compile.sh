@@ -1,7 +1,8 @@
 #!/bin/bash
 
 set -e # Die on first error.
-set -v # Output commands as they are executed.
+# set -v # Output commands as they are executed.
+
 
 # builds the Symbol Table
 mosmlc -c SymTab.sml
@@ -55,7 +56,7 @@ rm -f RegAlloc.u*
 rm -f SymTab.u*
 rm -f Type.u*
 rm -f *~
-
+echo done
 #################################
 ## use from command line:
 ##    $ mosml SeeSyntax.sml
