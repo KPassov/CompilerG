@@ -117,6 +117,20 @@ struct
            in (Fasto.Int pos,
                Fasto.Minus (List.nth (es,0), List.nth (es,1),pos))
            end
+      | Fasto.Times (e1, e2, pos) (* same as Plus *)
+        => let val (ts, es)
+                 = ListPair.unzip (List.map (expType vs) [e1,e2])
+               val t  = List.foldl (unifyTypes pos)(Fasto.Int pos) ts
+           in (Fasto.Int pos,
+               Fasto.Times (List.nth (es,0), List.nth (es,1),pos))
+           end
+      | Fasto.Divide (e1, e2, pos) (* same as Plus *)
+        => let val (ts, es)
+                 = ListPair.unzip (List.map (expType vs) [e1,e2])
+               val t  = List.foldl (unifyTypes pos)(Fasto.Int pos) ts
+           in (Fasto.Int pos,
+               Fasto.Divide (List.nth (es,0), List.nth (es,1),pos))
+           end
       | Fasto.Equal (e1, e2, pos) (* comparable arg types, result bool *)
         => let val (ts, es)= ListPair.unzip (List.map (expType vs) [e1,e2])
                val el_type = List.foldl (unifyTypes pos) Fasto.UNKNOWN ts
