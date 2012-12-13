@@ -10,7 +10,7 @@
 %nonassoc ifprec letprec
 %left OR 
 %left AND
-%nonassoc NOT
+%right NOT
 %left EQ LTH
 %left PLUS MINUS
 %left DIVIDE TIMES

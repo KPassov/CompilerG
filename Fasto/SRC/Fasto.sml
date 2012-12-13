@@ -89,7 +89,7 @@ struct
     | pp_exp d (Log   (b,  pos))        = Bool.toString b
     | pp_exp d (CharLit (c,  pos))      = "'" ^ Char.toCString c ^ "'"
     | pp_exp d (StringLit (s,  pos))    = "\"" ^ String.toCString s ^ "\""
-    | pp_exp d (Not   (b, pos))         = Bool.toString b
+(*    | pp_exp d (Not   (b, pos))         = Bool.toString b*)
     | pp_exp d (ArrayLit (lst, t, pos)) = 
         ( case lst of
             [ ]    => " { } "

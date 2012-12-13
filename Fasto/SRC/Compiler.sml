@@ -65,11 +65,11 @@ struct
    
   
   fun check_bounds(arr_beg, ind_reg, (line,c), arr_szeCB, arr_label1, arr_label2) =[
-	Mips.LW(arr_szeCB, arr_beg , "0"),Mips.BGEZ(ind_reg,arr_label1),
-	Mips.SUB(ind_reg,ind_reg,arr_szeCB), Mips.ADDI(ind_reg,ind_reg,"-1"), (*ind-length<0 >*)
-	Mips.BGEZ(ind_reg,arr_label2), 
+	Mips.LW(arr_szeCB, arr_beg , "0"), Mips.BGEZ(ind_reg,arr_label2),
 	Mips.LABEL(arr_label1), Mips.J "_IndexOutOfBoundsError_", 
-	Mips.LABEL(arr_label2)]
+	Mips.LABEL(arr_label2),	Mips.SUB(ind_reg,ind_reg,arr_szeCB), 
+	Mips.ADDI(ind_reg,ind_reg,"-1"), (*ind-length<0 >*)
+	Mips.BGEZ(ind_reg,arr_label1)]
 
 (*create register to hold the *)
 
