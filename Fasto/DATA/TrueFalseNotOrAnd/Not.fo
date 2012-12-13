@@ -1,0 +1,5 @@
+fun int main() = let a = true in
+                 let b = write(a) in
+                 let c = not a in
+                 let d = write(c) in
+                 write(not c)
