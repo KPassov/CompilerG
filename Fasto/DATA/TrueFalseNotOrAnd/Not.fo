@@ -1,4 +1,4 @@
-fun int main() = let a = true in
+fun bool main() = let a = True in
                  let b = write(a) in
                  let c = not a in
                  let d = write(c) in

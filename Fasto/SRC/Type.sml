@@ -117,20 +117,6 @@ struct
            in (Fasto.Int pos,
                Fasto.Minus (List.nth (es,0), List.nth (es,1),pos))
            end
-      | Fasto.Times (e1, e2, pos) (* same as Plus *)
-        => let val (ts, es)
-                 = ListPair.unzip (List.map (expType vs) [e1,e2])
-               val t  = List.foldl (unifyTypes pos)(Fasto.Int pos) ts
-           in (Fasto.Int pos,
-               Fasto.Times (List.nth (es,0), List.nth (es,1),pos))
-           end
-      | Fasto.Divide (e1, e2, pos) (* same as Plus *)
-        => let val (ts, es)
-                 = ListPair.unzip (List.map (expType vs) [e1,e2])
-               val t  = List.foldl (unifyTypes pos)(Fasto.Int pos) ts
-           in (Fasto.Int pos,
-               Fasto.Divide (List.nth (es,0), List.nth (es,1),pos))
-           end
       | Fasto.Equal (e1, e2, pos) (* comparable arg types, result bool *)
         => let val (ts, es)= ListPair.unzip (List.map (expType vs) [e1,e2])
                val el_type = List.foldl (unifyTypes pos) Fasto.UNKNOWN ts
@@ -152,6 +138,20 @@ struct
                 | _             => (Fasto.Bool pos, 
                                     Fasto.Less (List.nth (es,0),
                                                 List.nth (es,1), pos))
+           end
+      | Fasto.Or (e1, e2, pos)
+        => let val (ts, es) 
+                 = ListPair.unzip (List.map (expType vs) [e1,e2])
+               val t  = List.foldl (unifyTypes pos) (Fasto.Bool pos) ts
+           in (Fasto.Bool pos,
+               Fasto.Or (List.nth (es,0), List.nth (es,1),pos))
+           end
+      | Fasto.And (e1, e2, pos)
+        => let val (ts, es) 
+                 = ListPair.unzip (List.map (expType vs) [e1,e2])
+               val t  = List.foldl (unifyTypes pos) (Fasto.Bool pos) ts
+           in (Fasto.Bool pos, 
+               Fasto.And (List.nth (es,0), List.nth (es,1),pos))
            end
       | Fasto.If (pred,e1,e2,pos)
         => let val (ts, es)
@@ -265,6 +265,26 @@ struct
                     Fasto.Replicate (n_dec,exp_dec, expType, pos))
               else raise Error ("Replicate: wrong argument type "
                                 ^ showType n_type, pos)
+           end
+     | Fasto.Not (e, pos) 
+        => let val (t,_) = expType vs e
+           in if ( typesEqual (t, Fasto.Bool pos) )
+              then (Fasto.Bool pos, e)
+              else raise Error ("Not: not a boolean",(0,0))
+           end
+     | Fasto.Times (e1, e2, pos) (* same as Plus *)
+        => let val (ts, es)
+                 = ListPair.unzip (List.map (expType vs) [e1,e2])
+               val t  = List.foldl (unifyTypes pos)(Fasto.Int pos) ts
+           in (Fasto.Int pos,
+               Fasto.Times (List.nth (es,0), List.nth (es,1),pos))
+           end
+     | Fasto.Divide (e1, e2, pos) (* same as Plus *)
+        => let val (ts, es)
+                 = ListPair.unzip (List.map (expType vs) [e1,e2])
+               val t  = List.foldl (unifyTypes pos)(Fasto.Int pos) ts
+           in (Fasto.Int pos,
+               Fasto.Divide (List.nth (es,0), List.nth (es,1),pos))
            end
     | _ => raise Error("Unknown type given by syntex tree", (0,0))
                

@@ -176,8 +176,6 @@ struct
           [Mips.LI (place, makeConst 1)]
         else 
           [Mips.LI (place, makeConst 0)]
-        (* raise Error("But ... The Assumption Was "^ *)
-                                        (* "That Boolean Literals Cannot Appear", pos) *)
     | Fasto.CharLit(c,pos)   => [Mips.LI (place, makeConst (ord c))]
           (* compileExp (Fasto.Num(ord(c),pos)) vtable place *)
 
@@ -211,7 +209,6 @@ struct
         in  [Mips.LA (place, label),
              Mips.COMMENT (label^": string \""^ String.toCString str ^ "\"")]
         end
-
     | Fasto.ArrayLit(elems,tp,pos) =>
         let val is_char = case tp of Fasto.Char(p) => true | otherwise => false
             val is_bool = case tp of Fasto.Bool(p) => true | otherwise => false
@@ -236,7 +233,6 @@ struct
                             (*  @ ( if(is_char) then [ Mips.SB("0", addr_reg, "0") ] else [ ] )  *)
         in  header @ epilog
         end
-
     | Fasto.Var (x,pos) => 
         ( 
             case (SymTab.lookup x vtable) of
@@ -270,6 +266,20 @@ struct
             val code1 = compileExp e1 vtable t1
             val code2 = compileExp e2 vtable t2
         in  code1 @ code2 @ [Mips.DIV (place,t1,t2)]
+        end
+    | Fasto.Or (e1,e2,pos)=>
+        let val t1 = "_or1_"^newName()
+            val t2 = "_or2_"^newName()
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+        in  code1 @ code2 @ [Mips.OR (place,t1,t2)]
+        end
+    | Fasto.And (e1,e2,pos)=>
+        let val t1 = "_and1_"^newName()
+            val t2 = "_and2_"^newName()
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+        in  code1 @ code2 @ [Mips.AND (place,t1,t2)]
         end
     | Fasto.Let (dec,e1,(line,col)) =>
         let val (code1, vtable1) = compileDec dec vtable
@@ -590,9 +600,10 @@ struct
 	  code1 @ code2 @
 	  [Mips.SLT (t1,t1,t2), Mips.BNE (t1,"0",tlab),Mips.J flab]
 	end
-(*
+
     | Fasto.Not (c1,pos) => compileCond c1 vtable flab tlab
-(* jumping code for and and or, Mips instructions unused *)
+(*
+    (* jumping code for and and or, Mips instructions unused *)
     | Fasto.And (c1,c2,pos) => 
         let
 	  val l1 = "_and_"^newName()
