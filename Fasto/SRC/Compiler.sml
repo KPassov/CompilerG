@@ -172,7 +172,7 @@ struct
 	   Mips.ORI (place, place, makeConst (n mod 65536))]
 
     | Fasto.Log(b, pos)     => 
-        if b.toString = "true" then
+        if b = true then
           [Mips.LI (place, makeConst 1)]
         else 
           [Mips.LI (place, makeConst 0)]
