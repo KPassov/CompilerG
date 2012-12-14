@@ -35,8 +35,8 @@
        | "read"         => Parser.READ pos
        | "write"        => Parser.WRITE pos    
        | "not"        =>  Parser.NOT pos
-       | "false"       => Parser.FALSE (false,pos)
-       | "true"         => Parser.TRUE (true,pos)
+       | "False"       => Parser.FALSE pos
+       | "True"         => Parser.TRUE pos
        | "zipWith"     => Parser.ZIPWITH pos
        | "scan"        => Parser.SCAN pos
        | "length"      => Parser.LENGTH pos

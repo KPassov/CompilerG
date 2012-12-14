@@ -171,8 +171,13 @@ struct
 	  [Mips.LUI (place, makeConst (n div 65536)),
 	   Mips.ORI (place, place, makeConst (n mod 65536))]
 
-    | Fasto.Log(b, pos)     => raise Error("But ... The Assumption Was "^
-                                        "That Boolean Literals Cannot Appear", pos)
+    | Fasto.Log(b, pos)     => 
+        if b.toString = "true" then
+          [Mips.LI (place, makeConst 1)]
+        else 
+          [Mips.LI (place, makeConst 0)]
+        (* raise Error("But ... The Assumption Was "^ *)
+                                        (* "That Boolean Literals Cannot Appear", pos) *)
     | Fasto.CharLit(c,pos)   => [Mips.LI (place, makeConst (ord c))]
           (* compileExp (Fasto.Num(ord(c),pos)) vtable place *)
 

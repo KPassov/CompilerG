@@ -71,7 +71,6 @@ struct
 
   and Dec = Dec of string * Exp * pos
 
-
   type Binding = (string * Type)
 
   type FunDec = (string * Type * Binding list * Exp * pos)
@@ -86,11 +85,11 @@ struct
     | makeDepth n = "  " ^ (makeDepth (n-1))
 
   (* pretty printing an expression *)
-  fun pp_exp d (Num   (n,  pos))     = Int.toString n
-    | pp_exp d (Log   (b,  pos))     = Bool.toString b
-    | pp_exp d (CharLit (c,  pos))   = "'" ^ Char.toCString c ^ "'"
-    | pp_exp d (StringLit (s,  pos)) = "\"" ^ String.toCString s ^ "\""
-    | pp_exp d (ArrayLit (lst, t, pos) ) = 
+  fun pp_exp d (Num   (n,  pos))        = Int.toString n
+    | pp_exp d (Log   (b,  pos))        = Bool.toString b
+    | pp_exp d (CharLit (c,  pos))      = "'" ^ Char.toCString c ^ "'"
+    | pp_exp d (StringLit (s,  pos))    = "\"" ^ String.toCString s ^ "\""
+    | pp_exp d (ArrayLit (lst, t, pos)) = 
         ( case lst of
             [ ]    => " { } "
           | (a::l) => " { "^pp_exp d a^concat (map (fn x => ", "^pp_exp d x) l) ^ " } "
