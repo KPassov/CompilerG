@@ -213,7 +213,28 @@ struct
 		in case arr_type of
 			Fasto.Array (t,_) => (Fasto.Int pos, e)
 		|	other => raise Error ("Length: argument not an array", pos)
-end
+	   end
+      | Fasto.Scan (f, el, arr, arg_t, rtp, pos) 
+	=> let val (arr_type, arr_dec) = expType vs arr
+               val el_type 
+                 = case arr_type of
+                      Fasto.Array (t,_) => unifyTypes pos (arg_t, t)
+                    | other => raise Error ("Scan:3. argument not an array",pos)
+               val (f_arg_type, f_res_type)
+                 = case SymTab.lookup f (!functionTable)of
+                       NONE => raise Error ("Unknown identifier " ^ f, pos)
+                     | SOME (a1,res) => (a1,res)
+                     | SOME (args,r) 
+                       => raise Error ("Map: incompatible function type of "
+                                       ^ f ^ ":" ^ showFunType (args,r), pos)
+		val len = List.length f_arg_type 
+		val [a1,a2] = if len =2  then f_arg_type else raise Error("my", pos)
+           in if typesEqual (el_type, a1)
+              then (Fasto.Array (unifyTypes pos (rtp, a1),pos),e)
+              else raise Error ("Map: array element types does not match."
+                                ^ Fasto.pp_type el_type ^ " instead of " 
+                                ^ Fasto.pp_type a1 , pos)
+           end
       | Fasto.Map (f, arr, arg_t, res_t, pos)
         => let val (arr_type, arr_dec) = expType vs arr
                val el_type 

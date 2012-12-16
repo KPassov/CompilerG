@@ -64,8 +64,8 @@ struct
     | ZipWith of string * Exp * Exp * Type * Type * Type * pos  (* zipWith(plus, {1,2,3}, {4,5,6}) == {5, 7, 9} *)
                                                                    (* The first  Type is the first  input-array element type *)
                                                                    (* The second Type is the second input-array element type *)
-    | Scan of string * Exp * Exp * Type * pos                   (* scan plus 0 { 1, 2, 3 } = { 0, 1, 3, 6 } *)
-                                                                   (* Type is the input-array element type *)
+    | Scan of string * Exp * Exp * Type * Type* pos                   (* scan plus 0 { 1, 2, 3 } = { 0, 1, 3, 6 } *)
+                                                                   (* Types same as Map. Type is the input-array element type *)
     | Length of Exp * Type * pos                       (* length({1,2,3}) = 3 *) 
                                                                    (* Type is the output Integer *)
 
