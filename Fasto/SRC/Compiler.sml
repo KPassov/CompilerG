@@ -470,12 +470,12 @@ struct
             (*  2. apply mapped f with register r as place, i.e.,                   *) 
             (*       call ApplyRegs on fid and inp_reg                              *)
             (************************************************************************)
-            fun loopfun(i, r) = if ( getElSize t = 1 )
-                                then Mips.LB(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, vl, r, pos) 
+            fun loopfun(i, vl) = if ( getElSize t = 1 )
+                                then valuee @ Mips.LB(vl, inp_addr, "0")
+                                     :: ApplyRegs(fid, [e_reg, inp_addr], vl, pos) 
                                      @ [Mips.ADDI(inp_addr, inp_addr, "1")]
-                                else Mips.LW(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, vl, r, pos)
+                                else valuee @ Mips.LW(vl, inp_addr, "0")
+                                     :: ApplyRegs(fid, [e_reg, inp_addr], vl, pos)
                                      @ [Mips.ADDI(inp_addr, inp_addr, "4")]
 
         (* we use sz_reg to hold the size of the input/output array *)
