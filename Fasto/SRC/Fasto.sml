@@ -66,7 +66,7 @@ struct
                                                                    (* The second Type is the second input-array element type *)
     | Scan of string * Exp * Exp * Type * pos                   (* scan plus 0 { 1, 2, 3 } = { 0, 1, 3, 6 } *)
                                                                    (* Type is the input-array element type *)
-    | Length of string * Exp * Type * pos                       (* length({1,2,3}) = 3 *) 
+    | Length of Exp * Type * pos                       (* length({1,2,3}) = 3 *) 
                                                                    (* Type is the output Integer *)
 
   and Dec = Dec of string * Exp * pos
@@ -122,6 +122,7 @@ struct
     (* Array Constructs *)
     | pp_exp d (Iota (e, pos))         = "iota ( " ^ pp_exp d e ^ " ) "
     | pp_exp d (Map(id, e, _,_, pos))    = "map ( " ^ id ^ ", " ^ pp_exp d e ^ " ) "
+    | pp_exp d (Length(e, t, pos))    = "length ( " ^ pp_exp d e ^ " ) "
     | pp_exp d (Reduce(id, el, lst, t, pos)) = "reduce ( "^id^", "^pp_exp d el^", "^pp_exp d lst^" ) " 
     | pp_exp d (Replicate(e, el, t, pos)) = "replicate ( "^pp_exp d e^", "^pp_exp d el^" ) " 
     | pp_exp d (Read (t,p)) = "read(" ^pp_type t ^") "

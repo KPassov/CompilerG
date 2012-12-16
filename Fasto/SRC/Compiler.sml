@@ -454,6 +454,15 @@ struct
 (*** Second Order Functions (SOF)   ***)
 (***   iota, replicate, map, reduce ***)
 (**************************************)
+    | Fasto.Length(e,t,p) => 
+        let val lst_reg = "_arr_reg_"  ^newName()
+            val inp_addr= "_arr_i_reg_"^newName() 
+            val sz_reg  = "_size_reg_" ^newName()
+            val lst_code  = compileExp e vtable lst_reg
+
+        (* we use sz_reg to hold the size of the input/output array *)
+        in lst_code @ [ Mips.LW(place, lst_reg, "0")]
+        end
     | Fasto.Iota (e, (line,col)) =>
         let val sz_reg  = "_size_reg_"^newName()
             val code_sz = compileExp e vtable sz_reg
@@ -822,6 +831,15 @@ struct
 	 Mips.LA ("4","_cr_"),
 	 Mips.LI ("2","4"), Mips.SYSCALL, (* print CR *)
 	 Mips.J "_stop_",
+	(*Fixed error code for test*)
+	Mips.LABEL "_test_",
+	 Mips.LI ("2","4"), Mips.SYSCALL, (* print string *)
+	 Mips.MOVE ("4","5"),
+	 Mips.LI ("2","1"), Mips.SYSCALL, (* print line number *)
+	 Mips.LA ("4","_cr_"),
+	 Mips.LI ("2","4"), Mips.SYSCALL, (* print CR *)
+	 Mips.J "_stop_",
+
 	(*Fixed error code for out of bounds error*)
 	Mips.LABEL "_IndexOutOfBoundsError_",
 	 Mips.LA ("4","_IndexOutOfBoundsString_"),

@@ -88,6 +88,7 @@ struct
         Fasto.Num     (n,pos)     => (Fasto.Int pos , e)
       | Fasto.Log     (b,pos)     => (Fasto.Bool pos, e)
       | Fasto.CharLit (c,pos)     => (Fasto.Char pos, e)
+      | Fasto.Length (d,t,pos) => (Fasto.Int pos, e)
       | Fasto.StringLit (s,pos)   => (Fasto.Array ((Fasto.Char pos), pos), e)
       | Fasto.ArrayLit ([],_,pos) => raise Error("Impossible empty array",pos)
       | Fasto.ArrayLit (e::es, t, pos) 

@@ -246,6 +246,8 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
            | SOME m => applyIndexing(m, ind, pos)
         end
 
+
+
   (**********************************************)
   (*** Second-Order-Function-Array Constructs ***)
   (**********************************************)
@@ -298,6 +300,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
                        end
         end
 
+  
   | evalExp ( Reduce (fid, ne, arrexp, tp, pos), vtab, ftab ) =
         let val fexp = SymTab.lookup fid ftab
             val arr  = evalExp(arrexp, vtab, ftab)

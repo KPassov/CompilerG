@@ -37,9 +37,8 @@
        | "not"        =>  Parser.NOT pos
        | "False"       => Parser.FALSE (false, pos)
        | "True"         => Parser.TRUE (true, pos)
-       | "zipWith"     => Parser.ZIPWITH pos
        | "scan"        => Parser.SCAN pos
-       | "length"      => Parser.LENGTH pos
+       | "Length"      => Parser.LENGTH pos
        | _              => Parser.ID (s, pos)
  }
 rule Token = parse
