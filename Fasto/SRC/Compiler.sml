@@ -460,9 +460,11 @@ struct
                 val e_reg = "_e_reg_"  ^newName()
             val inp_addr= "_arr_i_reg_"^newName() 
             val sz_reg  = "_size_reg_" ^newName()
+            val res_reg  = "_size_reg_" ^newName()
             val lst_code  = compileExp arr vtable lst_reg
 	    val valuee = compileExp e vtable e_reg
 	    val vl = [e]
+	    
             (************************************************************************)
             (* i = loop count, r = the register that stores the computed f(e, arr[i]) value *)
             (* How To Compute?                                                      *)
@@ -470,18 +472,19 @@ struct
             (*  2. apply mapped f with register r as place, i.e.,                   *) 
             (*       call ApplyRegs on fid and inp_reg                              *)
             (************************************************************************)
-            fun loopfun(i, vl) = if ( getElSize t = 1 )
-                                then valuee @ Mips.LB(vl, inp_addr, "0")
-                                     :: ApplyRegs(fid, [e_reg, inp_addr], vl, pos) 
+            fun loopfun(i, r) = if (i ="1") then valuee else (*first index of array is e*)
+				if ( getElSize t = 1 )
+                                then Mips.LB(r, inp_addr, "0")
+                                     :: ApplyRegs(fid, [e_reg, r], r, pos)  (*rest is f(e, arr[i]) - Missing r[i] *)
                                      @ [Mips.ADDI(inp_addr, inp_addr, "1")]
-                                else valuee @ Mips.LW(vl, inp_addr, "0")
-                                     :: ApplyRegs(fid, [e_reg, inp_addr], vl, pos)
+                                else Mips.LW(r, inp_addr, "0")
+                                     :: ApplyRegs(fid, [e_reg, r], r, pos)
                                      @ [Mips.ADDI(inp_addr, inp_addr, "4")]
 
         (* we use sz_reg to hold the size of the input/output array *)
-        in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @ 
-           [Mips.LW(inp_addr, lst_reg, "4")] @
-           compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos )
+        in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @ valuee@
+           [Mips.LW(inp_addr, lst_reg, "4")] @ 
+           compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos ) 
         end
 (*project added length*)
     | Fasto.Length(e,t,p) => 
