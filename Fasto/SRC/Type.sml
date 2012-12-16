@@ -88,7 +88,6 @@ struct
         Fasto.Num     (n,pos)     => (Fasto.Int pos , e)
       | Fasto.Log     (b,pos)     => (Fasto.Bool pos, e)
       | Fasto.CharLit (c,pos)     => (Fasto.Char pos, e)
-      | Fasto.Length (d,t,pos) => (Fasto.Int pos, e)
       | Fasto.StringLit (s,pos)   => (Fasto.Array ((Fasto.Char pos), pos), e)
       | Fasto.ArrayLit ([],_,pos) => raise Error("Impossible empty array",pos)
       | Fasto.ArrayLit (e::es, t, pos) 
@@ -209,6 +208,12 @@ struct
               else raise Error ("Iota: wrong argument type "^ showType e_type,
                                 pos)
            end
+      | Fasto.Length (arr,t,pos) 
+	=> let val (arr_type, arr_dec) = expType vs arr
+		in case arr_type of
+			Fasto.Array (t,_) => (Fasto.Int pos, e)
+		|	other => raise Error ("Length: argument not an array", pos)
+end
       | Fasto.Map (f, arr, arg_t, res_t, pos)
         => let val (arr_type, arr_dec) = expType vs arr
                val el_type 

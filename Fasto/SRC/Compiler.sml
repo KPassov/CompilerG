@@ -454,13 +454,10 @@ struct
 (*** Second Order Functions (SOF)   ***)
 (***   iota, replicate, map, reduce ***)
 (**************************************)
+(*project added length*)
     | Fasto.Length(e,t,p) => 
-        let val lst_reg = "_arr_reg_"  ^newName()
-            val inp_addr= "_arr_i_reg_"^newName() 
-            val sz_reg  = "_size_reg_" ^newName()
+        let val lst_reg = "_arr_reg_"  ^newName()            
             val lst_code  = compileExp e vtable lst_reg
-
-        (* we use sz_reg to hold the size of the input/output array *)
         in lst_code @ [ Mips.LW(place, lst_reg, "0")]
         end
     | Fasto.Iota (e, (line,col)) =>

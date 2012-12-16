@@ -279,7 +279,6 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
            | _ => raise Error("Replicate First Arg (Array Size) "^
                               "Was Not Evaluated To A Number: "^pp_exp 0 sz, pos)
         end
-
   | evalExp ( Map (fid, arrexp, _, _, pos), vtab, ftab ) =
         let val fexp = SymTab.lookup fid ftab
             val arr  = evalExp(arrexp, vtab, ftab)
