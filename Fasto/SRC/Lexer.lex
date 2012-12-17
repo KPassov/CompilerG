@@ -39,6 +39,7 @@
        | "True"        => Parser.TRUE (true, pos)
        | "scan"        => Parser.SCAN pos
        | "Length"      => Parser.LENGTH pos
+       | "op"          => Parser.OP pos
        | _             => Parser.ID (s, pos)
  }
 rule Token = parse

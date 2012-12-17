@@ -1,0 +1,2 @@
+Type error: Map array element types does not match. int instead of bool 
+Line 2, column 26.

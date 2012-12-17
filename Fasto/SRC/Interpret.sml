@@ -302,6 +302,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
                        end
         end
 
+  (* | evalExp ( MapOP (_, arrexp, _, _, pos), vtab, ftab ) = *)
   
   | evalExp ( Reduce (fid, ne, arrexp, tp, pos), vtab, ftab ) =
         let val fexp = SymTab.lookup fid ftab
