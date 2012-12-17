@@ -608,32 +608,32 @@ struct
            compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos )
         end
 (*Operator, List, ElementType, ReturnType, Position*)
-    | Fasto.MapOP  (oper, lst, eltp, rtp, pos) => 
-        let val lst_reg = "_arr_reg_"  ^newName()
-            val inp_addr= "_arr_i_reg_"^newName() 
-            val sz_reg  = "_size_reg_" ^newName()
-            val lst_code  = compileExp lst vtable lst_reg
+    (* | Fasto.MapOP  (oper, lst, eltp, rtp, pos) =>  *)
+        (* let val lst_reg = "_arr_reg_"  ^newName() *)
+            (* val inp_addr= "_arr_i_reg_"^newName()  *)
+            (* val sz_reg  = "_size_reg_" ^newName() *)
+            (* val lst_code  = compileExp lst vtable lst_reg *)
 
-            (************************************************************************)
-            (* i = loop count, r = the register that stores the computed f(i) value *)
-            (* How To Compute?                                                      *)
-            (*  1. load the value stored in lst(i) in inp_reg                       *)
-            (*  2. apply mapped f with register r as place, i.e.,                   *) 
-            (*       call ApplyRegs on fid and inp_reg                              *)
-            (************************************************************************)
-            fun loopfun(i, r) = if ( getElSize eltp = 1 )
-                                then Mips.LB(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, [r], r, pos) 
-                                     @ [Mips.ADDI(inp_addr, inp_addr, "1")]
-                                else Mips.LW(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, [r], r, pos)
-                                     @ [Mips.ADDI(inp_addr, inp_addr, "4")]
+            (* [>**********************************************************************<] *)
+            (* [> i = loop count, r = the register that stores the computed f(i) value <] *)
+            (* [> How To Compute?                                                      <] *)
+            (* [>  1. load the value stored in lst(i) in inp_reg                       <] *)
+            (* [>  2. apply mapped f with register r as place, i.e.,                   <]  *)
+            (* [>       call ApplyRegs on fid and inp_reg                              <] *)
+            (* [>**********************************************************************<] *)
+            (* fun loopfun(i, r) = if ( getElSize eltp = 1 ) *)
+                                (* then Mips.LB(r, inp_addr, "0") *)
+                                     (* :: ApplyRegs(oper, [r], r, pos)  *)
+                                     (* @ [Mips.ADDI(inp_addr, inp_addr, "1")] *)
+                                (* else Mips.LW(r, inp_addr, "0") *)
+                                     (* :: ApplyRegs(oper, [r], r, pos) *)
+                                     (* @ [Mips.ADDI(inp_addr, inp_addr, "4")] *)
 
-        (* we use sz_reg to hold the size of the input/output array *)
-        in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @ 
-           [Mips.LW(inp_addr, lst_reg, "4")] @
-           compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos )
-        end
+        (* [> we use sz_reg to hold the size of the input/output array <] *)
+        (* in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @  *)
+           (* [Mips.LW(inp_addr, lst_reg, "4")] @ *)
+           (* compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos ) *)
+        (* end *)
     (****************************************************)
     (*** CompileDoLoop assumes the result is an array ***)
     (***   so we cannot use it here, instead we write ***)
