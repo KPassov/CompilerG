@@ -19,27 +19,27 @@
    be to encode every keyword as a regexp. This one is much easier. *)
  fun keyword (s, pos) =
      case s of
-         "if"             => Parser.IF pos
-       | "then"         => Parser.THEN pos
-       | "else"         => Parser.ELSE pos
-       | "let"            => Parser.LET pos
-       | "in"             => Parser.IN pos
-       | "int"            => Parser.INT pos
-       | "bool"          => Parser.BOOL pos
-       | "char"          => Parser.CHAR pos
-       | "fun"            => Parser.FUN pos
-       | "iota"           => Parser.IOTA pos
-       | "replicate"    => Parser.REPLICATE pos
-       | "map"          => Parser.MAP pos
+         "if"          => Parser.IF pos
+       | "then"        => Parser.THEN pos
+       | "else"        => Parser.ELSE pos
+       | "let"         => Parser.LET pos
+       | "in"          => Parser.IN pos
+       | "int"         => Parser.INT pos
+       | "bool"        => Parser.BOOL pos
+       | "char"        => Parser.CHAR pos
+       | "fun"         => Parser.FUN pos
+       | "iota"        => Parser.IOTA pos
+       | "replicate"   => Parser.REPLICATE pos
+       | "map"         => Parser.MAP pos
        | "reduce"      => Parser.REDUCE pos
-       | "read"         => Parser.READ pos
-       | "write"        => Parser.WRITE pos    
-       | "not"        =>  Parser.NOT pos
+       | "read"        => Parser.READ pos
+       | "write"       => Parser.WRITE pos    
+       | "not"         => Parser.NOT pos
        | "False"       => Parser.FALSE (false, pos)
-       | "True"         => Parser.TRUE (true, pos)
+       | "True"        => Parser.TRUE (true, pos)
        | "scan"        => Parser.SCAN pos
        | "Length"      => Parser.LENGTH pos
-       | _              => Parser.ID (s, pos)
+       | _             => Parser.ID (s, pos)
  }
 rule Token = parse
     [` ` `\t` `\r`]+    { Token lexbuf } (* whitespace *)
