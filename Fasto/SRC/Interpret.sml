@@ -158,6 +158,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         end
 
   (* | evalExp ( Not(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab) *)
+  | evalExp ( Negate(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab)
   | evalExp ( Var(id, pos), vtab, ftab ) =
         let val res = SymTab.lookup id vtab
         in case res of 

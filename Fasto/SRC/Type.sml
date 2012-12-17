@@ -299,6 +299,12 @@ struct
               then (Fasto.Bool pos, Fasto.Not (e, pos))
               else raise Error ("Not: not a boolean",(0,0))
            end
+     | Fasto.Negate (e, pos) 
+        => let val (t,_) = expType vs e
+           in if ( typesEqual (t, Fasto.Int pos) )
+              then (Fasto.Int pos, Fasto.Negate (e, pos))
+              else raise Error ("Negate: not an integer",(0,0))
+           end
      | Fasto.Times (e1, e2, pos) (* same as Plus *)
         => let val (ts, es)
                  = ListPair.unzip (List.map (expType vs) [e1,e2])

@@ -277,6 +277,18 @@ struct
                    Mips.LABEL falselabel, Mips.LI (place, makeConst 1),
                    Mips.LABEL endlabel]
         end
+    | Fasto.Negate (e, pos) =>
+        let val num   = "_neg1_"^newName()
+            (* val pos   = "_neg2_"^newName() *)
+            (* val endl  = "_neg3_"^newName() *)
+            val code = compileExp e vtable num
+            val t1 = "_neg2_"^newName()
+        in  code @ [Mips.ADDI(t1, "0","-1"), Mips.MUL(place, num, t1)]
+                   (* [Mips.LABEL truelabel, Mips.LI (place, makeConst 0), *)
+                   (* Mips.J endlabel, *)
+                   (* Mips.LABEL falselabel, Mips.LI (place, makeConst 1), *)
+                   (* Mips.LABEL endlabel] *)
+        end
     | Fasto.Or (e1,e2,pos)=>
         let val t1 = "_or1_"^newName()
             val t2 = "_or2_"^newName()
@@ -602,7 +614,7 @@ struct
            header   @ ApplyRegs(bop,[place,tmp_reg],place,pos) @ 
            [ Mips.ADDI(i_reg,i_reg,"1"), Mips.J loop_beg, Mips.LABEL loop_end ]
         end
-    | _ => raise Error("You should not be able to see this", (0,0))
+    | _ => raise Error("Compiler: Unknown Token from Intepreter", (0,0))
 
   (**********************************)
   (* pushing arguments on the stack *)
