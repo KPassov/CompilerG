@@ -216,9 +216,10 @@ struct
 	   end
       | Fasto.Scan (f, el, arr, arg_t, rtp, pos) 
 	=> let val (arr_type, arr_dec) = expType vs arr
+		val (el_e_type, el_decl) = expType vs el
                val el_type 
                  = case arr_type of
-                      Fasto.Array (t,_) => unifyTypes pos (arg_t, t)
+                      Fasto.Array (t,_) => unifyTypes pos((unifyTypes pos (arg_t, t), el_e_type))
                     | other => raise Error ("Scan:3. argument not an array",pos)
                val (f_arg_type, f_res_type)
                  = case SymTab.lookup f (!functionTable)of
@@ -231,7 +232,8 @@ struct
 		val [a1,a2] = if len =2  then f_arg_type else raise Error("Function takes wrong amount of arguments", pos)
            in if typesEqual (el_type, a1)(*test first type*)
               then 
-			(if typesEqual (el_type, a2) then (Fasto.Array (unifyTypes pos (rtp, a1),pos),e) (*test first argument*)
+			(if typesEqual (el_type, a2) then (Fasto.Array (unifyTypes pos (rtp, a1),pos),
+	                    Fasto.Scan (f, el_decl, arr_dec, el_type, f_res_type, pos)) (*test first argument*)
 				else raise Error ("Scan: array element types does not match."
 		                                ^ Fasto.pp_type el_type ^ " instead of " 
 		                                ^ Fasto.pp_type a2 , pos))

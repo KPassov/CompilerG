@@ -485,6 +485,7 @@ struct
             val lst_code  = compileExp lst vtable lst_reg
             val e_code  = compileExp eExpression vtable e_reg
 	    val last_r = "_last_reg_" ^newName()
+
             (************************************************************************)
             (* i = loop count, r = the register that stores the computed f(i) value *)
             (* How To Compute?                                                      *)
@@ -493,15 +494,15 @@ struct
             (*       call ApplyRegs on fid and inp_reg                              *)
             (************************************************************************)
             fun loopfun(i, r) = if ( getElSize eltp = 1 )
-                                then Mips.LB(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, [r], r, pos) 
+                                then Mips.ADDI(last_r,r,"0")::Mips.LB(r, inp_addr, "0")
+                                     :: ApplyRegs(fid, [last_r,r], r, pos) 
                                      @ [Mips.ADDI(inp_addr, inp_addr, "1")]
                                 else(Mips.ADDI(last_r,r,"0")::Mips.LW(r, inp_addr, "0")
                                      	:: ApplyRegs(fid, [last_r,r], r, pos)
                                      	@ [Mips.ADDI(inp_addr, inp_addr, "4")] )
 
 
-
+	(*Its possible to remove the added items from this compileDoLoop and extract it and use the actual comileloopcfunc*)
 	  fun scanDoLoop( el_sz : int, n_reg : string, e_reg : string, arr_reg : string, 
         	             f : string*string->Mips.MipsProg, pos ) : Mips.MipsProg = 
         		let val i_reg     = "_ind_var_" ^newName()
@@ -510,9 +511,14 @@ struct
         	    val loop_beg  = "_loop_beg_"^newName()
         	    val loop_end  = "_loop_end_"^newName()
         	    val addr_reg  = "_arr_loc_" ^newName() 
+(*add e to array*)  val code_add_e = case el_sz of
+				4 =>[Mips.SW(res_reg, addr_reg, "0"),Mips.ADDI(addr_reg,addr_reg, "4") ] 
+			       |1 => [Mips.SB(res_reg, addr_reg, "0"),Mips.ADDI(addr_reg,addr_reg, "1") ]
+			       |otherwise => raise Error("The Only Valid Element-Sizes Are 1 and 4. Error",pos)
+
         	    val header    = [ Mips.LW(addr_reg, arr_reg, "4"), Mips.MOVE(i_reg, "0"), 
-				      Mips.ADDI(res_reg, e_reg, "0"),(*set last result to e*)
-				      Mips.SW(res_reg, addr_reg, "0"),Mips.ADDI(addr_reg,addr_reg, "4"), (*add e to array*)
+				      Mips.ADDI(res_reg, e_reg, "0")(*set last result to e*)
+				      ] @ code_add_e @ [
         	                      Mips.LABEL(loop_beg),Mips.SUB(tmp_reg, i_reg, n_reg), 
         	                      Mips.BGEZ(tmp_reg, loop_end)
         	                    ]
@@ -520,7 +526,7 @@ struct
         	    val code_assign  = 
         	          case el_sz of
         	            4 => [ Mips.SW(res_reg,addr_reg,"0"), Mips.ADDI(addr_reg,addr_reg,"4") ]
-        	          | 1 => [ Mips.SB(res_reg,addr_reg,"0"), Mips.ADDI(addr_reg,addr_reg,"1") ] 
+        	          | 1 => [ Mips.SB(res_reg,addr_reg,"0"),Mips.ADDI(addr_reg,addr_reg,"1") ] 
         	          | otherwise => raise Error("The Only Valid Element-Sizes Are 1 and 4. Error",pos)
         	    val epilog = [ Mips.ADDI(i_reg,i_reg,"1"), Mips.J loop_beg, Mips.LABEL loop_end ]
         	in header @ code_fi @ code_assign @ epilog
