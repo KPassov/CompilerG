@@ -485,7 +485,6 @@ struct
             val lst_code  = compileExp lst vtable lst_reg
             val e_code  = compileExp eExpression vtable e_reg
 	    val last_r = "_last_reg_" ^newName()
-		val code = e_code @[Mips.LW(last_r,e_reg,"0")]
             (************************************************************************)
             (* i = loop count, r = the register that stores the computed f(i) value *)
             (* How To Compute?                                                      *)
@@ -497,14 +496,44 @@ struct
                                 then Mips.LB(r, inp_addr, "0")
                                      :: ApplyRegs(fid, [r], r, pos) 
                                      @ [Mips.ADDI(inp_addr, inp_addr, "1")]
-                                else(Mips.LW(r, inp_addr, "0")
+                                else(Mips.ADDI(last_r,r,"0")::Mips.LW(r, inp_addr, "0")
                                      	:: ApplyRegs(fid, [last_r,r], r, pos)
-                                     	@ [Mips.ADDI(inp_addr, inp_addr, "4")])
+                                     	@ [Mips.ADDI(inp_addr, inp_addr, "4")] )
+
+
+
+	  fun scanDoLoop( el_sz : int, n_reg : string, e_reg : string, arr_reg : string, 
+        	             f : string*string->Mips.MipsProg, pos ) : Mips.MipsProg = 
+        		let val i_reg     = "_ind_var_" ^newName()
+        	    val res_reg   = "_res_i_reg"^newName()
+        	    val tmp_reg   = "_tmp_reg_" ^newName()
+        	    val loop_beg  = "_loop_beg_"^newName()
+        	    val loop_end  = "_loop_end_"^newName()
+        	    val addr_reg  = "_arr_loc_" ^newName() 
+        	    val header    = [ Mips.LW(addr_reg, arr_reg, "4"), Mips.MOVE(i_reg, "0"), 
+				      Mips.ADDI(res_reg, e_reg, "0"),(*set last result to e*)
+				      Mips.SW(res_reg, addr_reg, "0"),Mips.ADDI(addr_reg,addr_reg, "4"), (*add e to array*)
+        	                      Mips.LABEL(loop_beg),Mips.SUB(tmp_reg, i_reg, n_reg), 
+        	                      Mips.BGEZ(tmp_reg, loop_end)
+        	                    ]
+        	    val code_fi   = f(i_reg, res_reg)
+        	    val code_assign  = 
+        	          case el_sz of
+        	            4 => [ Mips.SW(res_reg,addr_reg,"0"), Mips.ADDI(addr_reg,addr_reg,"4") ]
+        	          | 1 => [ Mips.SB(res_reg,addr_reg,"0"), Mips.ADDI(addr_reg,addr_reg,"1") ] 
+        	          | otherwise => raise Error("The Only Valid Element-Sizes Are 1 and 4. Error",pos)
+        	    val epilog = [ Mips.ADDI(i_reg,i_reg,"1"), Mips.J loop_beg, Mips.LABEL loop_end ]
+        	in header @ code_fi @ code_assign @ epilog
+        	end
+
+
+
+
 
         (* we use sz_reg to hold the size of the input/output array *)
-        in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @ 
-           [Mips.LW(inp_addr, lst_reg, "4")] @
-           compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos )
+        in lst_code @ [Mips.LW(sz_reg, lst_reg, "0"), Mips.ADDI(sz_reg, sz_reg, "1")] @ dynalloc(sz_reg, place, rtp) @ 
+           [Mips.LW(inp_addr, lst_reg, "4")] @ e_code @
+           scanDoLoop( getElSize rtp, sz_reg,e_reg, place, loopfun, pos )
         end
 (*project added length*)
     | Fasto.Length(e,t,p) => 
