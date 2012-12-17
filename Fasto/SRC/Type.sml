@@ -80,6 +80,13 @@ struct
     | printable (Fasto.Array (Fasto.Char _, _)) = true
     | printable _ = false   (* true (*for polymorphic write*) *)
 
+  fun operToString (Fasto.NotOP pos) = "not"
+    | operToString (Fasto.NegOP pos) = "~"
+    | operToString (Fasto.TimOP pos) = "*"
+    | operToString (Fasto.DivOP pos) = "/"
+    | operToString (Fasto.PluOP pos) = "+"
+    | operToString (Fasto.MinOP pos) = "-"
+
   (* Determine the type of an expression, decorate nodes with type on the way.
      An exception is raised immediately on the first inconsistency, in
      "unifyTypes" (could instead collect and report everything at the end). *)
@@ -256,8 +263,28 @@ struct
               then (Fasto.Array (unifyTypes pos (res_t, f_res_type),pos),
                     Fasto.Map (f, arr_dec, el_type, f_res_type, pos))
               else raise Error ("Map: array element types does not match."
-                                ^ Fasto.pp_type el_type ^ " instead of " 
+                                ^ Fasto.pp_type el_type ^ "instead of " 
                                 ^ Fasto.pp_type f_arg_type , pos)
+           end
+      | Fasto.MapOP (oper, arr, arg_t, res_t, pos)
+        => let val (arr_type, arr_dec) = expType vs arr
+               val el_type 
+                 = case arr_type of
+                      Fasto.Array (t,_) => unifyTypes pos (arg_t, t)
+                    | other => raise Error ("MapOP: Argument not an array",pos)
+               val oper_string = operToString(oper)
+               val oper_type
+                 = if oper_string = "~"
+                   then Fasto.Int pos
+                   else if oper_string = "not"
+                        then Fasto.Bool pos
+                        else raise Error ("MapOP: incompatiable operator", pos)
+           in if typesEqual (el_type, oper_type)
+              then (Fasto.Array (unifyTypes pos (res_t, oper_type),pos),
+                    Fasto.MapOP (oper, arr_dec, el_type, oper_type, pos))
+              else raise Error ("Map array element types does not match. "
+                                ^ Fasto.pp_type el_type ^ "instead of " 
+                                ^ Fasto.pp_type oper_type , pos)
            end
       | Fasto.Reduce (f, n, arr, t, pos)
         => let val (n_type, n_dec) = expType vs n
