@@ -157,12 +157,14 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         in ArrayLit(exps, Char(pos), pos)
         end
 
+  (* | evalExp ( Not(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab) *)
   | evalExp ( Var(id, pos), vtab, ftab ) =
         let val res = SymTab.lookup id vtab
         in case res of 
              NONE   => raise Error("Symbol "^id^" Is Not In Symbol Table!\n", pos)
            | SOME m => m
         end
+
 
   | evalExp ( Plus(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)

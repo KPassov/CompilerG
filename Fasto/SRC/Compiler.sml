@@ -267,6 +267,16 @@ struct
             val code2 = compileExp e2 vtable t2
         in  code1 @ code2 @ [Mips.DIV (place,t1,t2)]
         end
+    | Fasto.Not (e, pos) =>
+        let val truelabel  = "_not1_"^newName()
+            val falselabel = "_not2_"^newName()
+            val endlabel   = "_endnot_"^newName()
+            val code = compileCond e vtable truelabel falselabel
+        in  code @ [Mips.LABEL truelabel, Mips.LI (place, makeConst 0),
+                   Mips.J endlabel,
+                   Mips.LABEL falselabel, Mips.LI (place, makeConst 1),
+                   Mips.LABEL endlabel]
+        end
     | Fasto.Or (e1,e2,pos)=>
         let val t1 = "_or1_"^newName()
             val t2 = "_or2_"^newName()
@@ -639,9 +649,8 @@ struct
 	  code1 @ code2 @
 	  [Mips.SLT (t1,t1,t2), Mips.BNE (t1,"0",tlab),Mips.J flab]
 	end
-
-    | Fasto.Not (c1,pos) => compileCond c1 vtable flab tlab
 (*
+    | Fasto.Not (c1,pos) => compileCond c1 vtable flab tlab
     (* jumping code for and and or, Mips instructions unused *)
     | Fasto.And (c1,c2,pos) => 
         let
