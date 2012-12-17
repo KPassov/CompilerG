@@ -67,9 +67,9 @@ struct
   fun check_bounds(arr_beg, ind_reg, (line,c), arr_szeCB, arr_label1, arr_label2) =[
 	Mips.LW(arr_szeCB, arr_beg , "0"), Mips.BGEZ(ind_reg,arr_label2),
 	Mips.LABEL(arr_label1), Mips.LI("5",makeConst line), Mips.J "_IndexOutOfBoundsError_", 
-	Mips.LABEL(arr_label2),	Mips.ADDI(arr_szeCB,arr_szeCB,"-1"), Mips.SUB(ind_reg,ind_reg,arr_szeCB), 
+	Mips.LABEL(arr_label2),	Mips.ADDI(arr_szeCB,arr_szeCB,"-1"), Mips.SUB(arr_szeCB,ind_reg,arr_szeCB), 
 	 (*Mips.ADDI(ind_reg,ind_reg,"-1"), ind-length<0 >*)
-	Mips.BGEZ(ind_reg,arr_label1)]
+	Mips.BGEZ(arr_szeCB,arr_label1)]
 
 (*create register to hold the *)
 
@@ -455,36 +455,34 @@ struct
 (***   iota, replicate, map, reduce ***)
 (**************************************)
 (*project added scan*)
-    | Fasto.Scan(fid, e, arr, t,rtp, pos) =>
-                let val lst_reg = "_arr_reg_"  ^newName()
-                val e_reg = "_e_reg_"  ^newName()
+    | Fasto.Scan  (fid,eExpression, lst, eltp, rtp, pos) => 
+        let val lst_reg = "_arr_reg_"  ^newName()
             val inp_addr= "_arr_i_reg_"^newName() 
             val sz_reg  = "_size_reg_" ^newName()
-            val res_reg  = "_size_reg_" ^newName()
-            val lst_code  = compileExp arr vtable lst_reg
-	    val valuee = compileExp e vtable e_reg
-	    val vl = [e]
-	    
+            val e_reg  = "_e_reg_" ^newName()
+            val lst_code  = compileExp lst vtable lst_reg
+            val e_code  = compileExp eExpression vtable e_reg
+	    val last_r = "_last_reg_" ^newName()
+		val code = e_code @[Mips.LW(last_r,e_reg,"0")]
             (************************************************************************)
-            (* i = loop count, r = the register that stores the computed f(e, arr[i]) value *)
+            (* i = loop count, r = the register that stores the computed f(i) value *)
             (* How To Compute?                                                      *)
             (*  1. load the value stored in lst(i) in inp_reg                       *)
             (*  2. apply mapped f with register r as place, i.e.,                   *) 
             (*       call ApplyRegs on fid and inp_reg                              *)
             (************************************************************************)
-            fun loopfun(i, r) = if (i ="1") then valuee else (*first index of array is e*)
-				if ( getElSize t = 1 )
+            fun loopfun(i, r) = if ( getElSize eltp = 1 )
                                 then Mips.LB(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, [e_reg, r], r, pos)  (*rest is f(e, arr[i]) - Missing r[i] *)
+                                     :: ApplyRegs(fid, [r], r, pos) 
                                      @ [Mips.ADDI(inp_addr, inp_addr, "1")]
-                                else Mips.LW(r, inp_addr, "0")
-                                     :: ApplyRegs(fid, [e_reg, r], r, pos)
-                                     @ [Mips.ADDI(inp_addr, inp_addr, "4")]
+                                else(Mips.LW(r, inp_addr, "0")
+                                     	:: ApplyRegs(fid, [last_r,r], r, pos)
+                                     	@ [Mips.ADDI(inp_addr, inp_addr, "4")])
 
         (* we use sz_reg to hold the size of the input/output array *)
-        in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @ valuee@
-           [Mips.LW(inp_addr, lst_reg, "4")] @ 
-           compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos ) 
+        in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @ 
+           [Mips.LW(inp_addr, lst_reg, "4")] @
+           compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos )
         end
 (*project added length*)
     | Fasto.Length(e,t,p) => 

@@ -225,13 +225,17 @@ struct
                        NONE => raise Error ("Unknown identifier " ^ f, pos)
                      | SOME (a1,res) => (a1,res)
                      | SOME (args,r) 
-                       => raise Error ("Map: incompatible function type of "
+                       => raise Error ("Scan: incompatible function type of "
                                        ^ f ^ ":" ^ showFunType (args,r), pos)
 		val len = List.length f_arg_type 
-		val [a1,a2] = if len =2  then f_arg_type else raise Error("my", pos)
-           in if typesEqual (el_type, a1)
-              then (Fasto.Array (unifyTypes pos (rtp, a1),pos),e)
-              else raise Error ("Map: array element types does not match."
+		val [a1,a2] = if len =2  then f_arg_type else raise Error("Function takes wrong amount of arguments", pos)
+           in if typesEqual (el_type, a1)(*test first type*)
+              then 
+			(if typesEqual (el_type, a2) then (Fasto.Array (unifyTypes pos (rtp, a1),pos),e) (*test first argument*)
+				else raise Error ("Scan: array element types does not match."
+		                                ^ Fasto.pp_type el_type ^ " instead of " 
+		                                ^ Fasto.pp_type a2 , pos))
+              else raise Error ("Scan: Begining type does not match."
                                 ^ Fasto.pp_type el_type ^ " instead of " 
                                 ^ Fasto.pp_type a1 , pos)
            end
