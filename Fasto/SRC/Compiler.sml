@@ -67,9 +67,9 @@ struct
   fun check_bounds(arr_beg, ind_reg, (line,c), arr_szeCB, arr_label1, arr_label2) =[
 	Mips.LW(arr_szeCB, arr_beg , "0"), Mips.BGEZ(ind_reg,arr_label2),
 	Mips.LABEL(arr_label1), Mips.LI("5",makeConst line), Mips.J "_IndexOutOfBoundsError_", 
-	Mips.LABEL(arr_label2),	Mips.ADDI(arr_szeCB,arr_szeCB,"-1"), Mips.SUB(arr_szeCB,ind_reg,arr_szeCB), 
+	Mips.LABEL(arr_label2), Mips.SUB(arr_szeCB,ind_reg,arr_szeCB), 
 	 (*Mips.ADDI(ind_reg,ind_reg,"-1"), ind-length<0 >*)
-	Mips.BGEZ(arr_szeCB,arr_label1)]
+	Mips.BGEZ(arr_szeCB, arr_label1)]
 
 (*create register to hold the *)
 

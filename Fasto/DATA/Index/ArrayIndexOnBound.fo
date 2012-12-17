@@ -1,0 +1,3 @@
+fun char main() = 
+     let arrch = {{'p', 'a', 'p', 'a', 'p'}, {'m', 'a', 'm', 'a'}} in
+		let a = arrch[1] in  let arrint = {{1+2, 3+5},{1+8, 3+10}} in let al = arrint[0] in let p = write(al[1]) in let ac= write(a[3]) in let alp= write(arrch[2]) in 'p'
