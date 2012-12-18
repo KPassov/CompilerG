@@ -38,7 +38,7 @@
        | "False"       => Parser.FALSE (false, pos)
        | "True"        => Parser.TRUE (true, pos)
        | "scan"        => Parser.SCAN pos
-       | "Length"      => Parser.LENGTH pos
+       | "length"      => Parser.LENGTH pos
        | "op"          => Parser.OP pos
        | _             => Parser.ID (s, pos)
  }
