@@ -42,7 +42,6 @@ struct
     | Map of string * Exp * Type * Type * pos    (* map(f, lst)       *)
                                                    (* The first type  is the input-array  element type *)
                                                    (* The second type is the output-array element type *)
-    | MapOP of Operator * Exp * Type * Type * pos    (**)
     | Reduce of string * Exp * Exp * Type * pos  (* reduce(f, 0, lst) *)
                                                    (* Type is the input-array element type *) 
     | Replicate of Exp * Exp * Type * pos        (* replicate(n, 0)   *)
@@ -59,6 +58,8 @@ struct
     | Or of Exp * Exp * pos
     | Not of Exp * pos
     | Negate of Exp * pos
+    | MapOP of Operator * Exp * Type * Type * pos    (**)
+    | ReduceOP of Operator * Exp * Exp * Type * pos  (*  *)
 
     
     (* second-order-array combinators *)
@@ -130,12 +131,13 @@ struct
     (* Array Constructs *)
     | pp_exp d (Iota (e, pos))         = "iota ( " ^ pp_exp d e ^ " ) "
     | pp_exp d (Map(id, e, _,_, pos))    = "map ( " ^ id ^ ", " ^ pp_exp d e ^ " ) "
-    | pp_exp d (MapOP(oper, e, _,_, pos))    = "mapop ( " ^ pp_operator oper ^ ", " ^ pp_exp d e ^ " ) "
     | pp_exp d (Length(e, t, pos))    = "length ( " ^ pp_exp d e ^ " ) "
     | pp_exp d (Reduce(id, el, lst, t, pos)) = "reduce ( "^id^", "^pp_exp d el^", "^pp_exp d lst^" ) " 
     | pp_exp d (Replicate(e, el, t, pos)) = "replicate ( "^pp_exp d e^", "^pp_exp d el^" ) " 
     | pp_exp d (Read (t,p)) = "read(" ^pp_type t ^") "
     | pp_exp d (Write (e,t,p)) = "write(" ^pp_exp d e ^") "
+    | pp_exp d (MapOP(oper, e, _,_, pos))    = "mapop ( " ^ pp_operator oper ^ ", " ^ pp_exp d e ^ " ) "
+    | pp_exp d (ReduceOP(oper, el, lst, t, pos)) = "reduce ( "^ pp_operator oper ^", "^pp_exp d el^", "^pp_exp d lst^" ) " 
     | pp_exp d (_) = "Error unknown input from Parser.sml" 
 
   (* pretty printing a type *)

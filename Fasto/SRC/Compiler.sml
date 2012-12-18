@@ -280,15 +280,9 @@ struct
         end
     | Fasto.Negate (e, pos) =>
         let val num   = "_neg1_"^newName()
-            (* val pos   = "_neg2_"^newName() *)
-            (* val endl  = "_neg3_"^newName() *)
             val code = compileExp e vtable num
             val t1 = "_neg2_"^newName()
         in  code @ [Mips.ADDI(t1, "0","-1"), Mips.MUL(place, num, t1)]
-                   (* [Mips.LABEL truelabel, Mips.LI (place, makeConst 0), *)
-                   (* Mips.J endlabel, *)
-                   (* Mips.LABEL falselabel, Mips.LI (place, makeConst 1), *)
-                   (* Mips.LABEL endlabel] *)
         end
     | Fasto.Or (e1,e2,pos)=>
         let val t1 = "_or1_"^newName()
@@ -615,8 +609,9 @@ struct
            compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos )
         end
 (*Operator, List, ElementType, ReturnType, Position*)
-    (* | Fasto.MapOP  (oper, lst, eltp, rtp, pos) =>  *)
-        (* let val lst_reg = "_arr_reg_"  ^newName() *)
+    | Fasto.MapOP  (oper, lst, eltp, optp, pos) => 
+        (* let  *)
+            (* val lst_reg = "_arr_reg_"  ^newName() *)
             (* val inp_addr= "_arr_i_reg_"^newName()  *)
             (* val sz_reg  = "_size_reg_" ^newName() *)
             (* val lst_code  = compileExp lst vtable lst_reg *)
@@ -637,7 +632,11 @@ struct
                                      (* @ [Mips.ADDI(inp_addr, inp_addr, "4")] *)
 
         (* [> we use sz_reg to hold the size of the input/output array <] *)
-        (* in lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @  *)
+        (* in  *)
+           if optp = Fasto.Int pos 
+            then raise Error("bool", (0,0))
+            else raise Error("notbool", (0,0))
+           (* lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @  *)
            (* [Mips.LW(inp_addr, lst_reg, "4")] @ *)
            (* compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos ) *)
         (* end *)

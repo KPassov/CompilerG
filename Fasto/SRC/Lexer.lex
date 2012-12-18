@@ -34,12 +34,14 @@
        | "reduce"      => Parser.REDUCE pos
        | "read"        => Parser.READ pos
        | "write"       => Parser.WRITE pos    
-       | "not"         => Parser.NOT pos
+(* Student implementations *)
        | "False"       => Parser.FALSE (false, pos)
        | "True"        => Parser.TRUE (true, pos)
+       | "not"         => Parser.NOT pos
        | "scan"        => Parser.SCAN pos
        | "length"      => Parser.LENGTH pos
        | "op"          => Parser.OP pos
+(* End of Student implementation *)
        | _             => Parser.ID (s, pos)
  }
 rule Token = parse
@@ -67,11 +69,13 @@ rule Token = parse
                  | SOME s => String.substring(s,1,
                               String.size s - 2)),
                  getPos lexbuf) }
+(* Student implementation *)
   | `*`                 { Parser.TIMES (getPos lexbuf) }
+  | `/`                 { Parser.DIVIDE (getPos lexbuf) }
+  | `~`			        { Parser.NEGATE (getPos lexbuf) }
   | `|`                 { Parser.OR (getPos lexbuf) }
   | `&`                 { Parser.AND (getPos lexbuf) }
-  | `~`			        { Parser.NEGATE (getPos lexbuf) }
-  | `/`                 { Parser.DIVIDE (getPos lexbuf) }
+(* end of student implementation *)
   | `+`                 { Parser.PLUS (getPos lexbuf) }
   | `-`                 { Parser.MINUS(getPos lexbuf) }
   | `=`                 { Parser.EQ (getPos lexbuf) }

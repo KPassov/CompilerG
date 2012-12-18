@@ -51,18 +51,10 @@ Exp :     NUM            { Fasto.Num $1 }
         | STRINGLIT      { Fasto.StringLit $1 }
         | LCURLY Exps RCURLY
                          { Fasto.ArrayLit ($2, Fasto.UNKNOWN, $1) }
-        | Exp OR     Exp { Fasto.Or($1, $3, $2) }
-        | Exp AND    Exp { Fasto.And($1, $3, $2) }
-        | NOT        Exp { Fasto.Not($2, $1) }
         | Exp EQ     Exp { Fasto.Equal($1, $3, $2) }
         | Exp LTH    Exp { Fasto.Less ($1, $3, $2) }
         | Exp PLUS   Exp { Fasto.Plus ($1, $3, $2) }
         | Exp MINUS  Exp { Fasto.Minus($1, $3, $2) }
-        | Exp DIVIDE Exp { Fasto.Divide($1, $3, $2) }
-        | Exp TIMES  Exp { Fasto.Times($1, $3, $2) }
-	    | TRUE		     { Fasto.Log $1}		
-	    | FALSE		     { Fasto.Log $1}		
-        | NEGATE     Exp { Fasto.Negate($2, $1) }
         | IF Exp THEN Exp ELSE Exp %prec ifprec
                          { Fasto.If ($2, $4, $6, $1) }
         | ID LPAR Exps RPAR
@@ -81,23 +73,28 @@ Exp :     NUM            { Fasto.Num $1 }
         | MAP LPAR ID COMMA Exp RPAR
                         { Fasto.Map (#1 $3, $5, 
                                      Fasto.UNKNOWN, Fasto.UNKNOWN, $1) }
-        | MAP LPAR OP Operator COMMA Exp RPAR
-                        { Fasto.MapOP ($4, $6, 
-                                     Fasto.UNKNOWN, Fasto.UNKNOWN, $1) }
         | LPAR Exp RPAR { $2 }
         | LET ID EQ Exp IN Exp %prec letprec
                         { Fasto.Let (Fasto.Dec (#1 $2, $4, $3), $6, $1) }
         | ID LBRACKET Exp RBRACKET
                         { Fasto.Index (#1 $1, $3, Fasto.UNKNOWN, $2) }
-        | ZIPWITH LPAR ID COMMA Exp COMMA Exp RPAR 
-                        { Fasto.ZipWith (#1 $3, $5, $7, Fasto.UNKNOWN, Fasto.UNKNOWN, Fasto.UNKNOWN, $1) } 
+        | NEGATE     Exp { Fasto.Negate($2, $1) }
+        | Exp DIVIDE Exp { Fasto.Divide($1, $3, $2) }
+        | Exp TIMES  Exp { Fasto.Times($1, $3, $2) }
+        | Exp OR     Exp { Fasto.Or($1, $3, $2) }
+        | Exp AND    Exp { Fasto.And($1, $3, $2) }
+        | NOT        Exp { Fasto.Not($2, $1) }
+	    | TRUE		     { Fasto.Log $1}		
+	    | FALSE		     { Fasto.Log $1}		
         | SCAN LPAR ID COMMA Exp COMMA Exp RPAR 
                         { Fasto.Scan (#1 $3, $5, $7, Fasto.UNKNOWN, Fasto.UNKNOWN, $1) }
         | LENGTH LPAR Exp RPAR  
                         { Fasto.Length ($3, Fasto.UNKNOWN, $1) }
-;
-Exps : Exp COMMA Exps   { $1 :: $3 }
-    |  Exp              { $1 :: [] } 
+        | MAP LPAR OP Operator COMMA Exp RPAR
+                        { Fasto.MapOP ($4, $6, 
+                                     Fasto.UNKNOWN, Fasto.UNKNOWN, $1) }
+        | REDUCE LPAR OP Operator COMMA Exp COMMA Exp RPAR
+                        { Fasto.ReduceOP ($4, $6, $8, Fasto.UNKNOWN, $1) }
 ;
 Operator :  NEGATE  { Fasto.NegOP $1 }
     |       NOT     { Fasto.NotOP $1 }
@@ -105,4 +102,7 @@ Operator :  NEGATE  { Fasto.NegOP $1 }
     |       DIVIDE  { Fasto.DivOP $1 }
     |       PLUS    { Fasto.PluOP $1 }
     |       MINUS   { Fasto.MinOP $1 }
+;
+Exps : Exp COMMA Exps   { $1 :: $3 }
+    |  Exp              { $1 :: [] } 
 ;
