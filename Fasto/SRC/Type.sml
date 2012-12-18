@@ -231,13 +231,9 @@ struct
                val (f_arg_type, f_res_type)
                  = case SymTab.lookup f (!functionTable)of
                        NONE => raise Error ("Unknown identifier " ^ f, pos)
-                     | SOME (a1,res) => (a1,res)
-                     | SOME (args,r) 
-                       => raise Error ("Scan: incompatible function type of "
-                                       ^ f ^ ":" ^ showFunType (args,r), pos)
-		val len = List.length f_arg_type 
-		val [a1,a2] = if len =2  then f_arg_type else raise Error("Function takes wrong amount of arguments", pos)
-           in if typesEqual (el_type, a1)(*test first type*)
+                     | SOME (a1,res) => (a1,res)                     
+		in case f_arg_type of
+			[a1,a2] => (if typesEqual (el_type, a1)(*test first type*)
               then 
 			(if typesEqual (el_type, a2) then (Fasto.Array (unifyTypes pos (rtp, a1),pos),
 	                    Fasto.Scan (f, el_decl, arr_dec, el_type, f_res_type, pos)) (*test first argument*)
@@ -247,6 +243,8 @@ struct
               else raise Error ("Scan: Begining type does not match."
                                 ^ Fasto.pp_type el_type ^ " instead of " 
                                 ^ Fasto.pp_type a1 , pos)
+           )
+			| otherwise => raise Error("Function takes wrong amount of arguments", pos)
            end
       | Fasto.Map (f, arr, arg_t, res_t, pos)
         => let val (arr_type, arr_dec) = expType vs arr
