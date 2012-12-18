@@ -1,3 +1,0 @@
-fun int main() = let a = 4 / 0 in
-                 write(a)
-             
