@@ -26,7 +26,8 @@ fun getFunRTP (_,rtp,_,_,_)= rtp
 fun getFunArgs(_,_,arg,_,_)= arg
 fun getFunBody(_,_,_,bdy,_)= bdy
 fun getFunPos (_,_,_,_,pos)= pos
-
+fun scan_ f x [] = []
+    | scan_ f x (a::rest) = x::scan_ f (f (x,a)) rest;
 
 (*************************************************)
 (*** Function table associates a function name ***)
@@ -282,6 +283,34 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
            | _ => raise Error("Replicate First Arg (Array Size) "^
                               "Was Not Evaluated To A Number: "^pp_exp 0 sz, pos)
         end
+
+  | evalExp (Length (exp, tp, pos), vtab, ftab) = 
+		let val arr = evalExp(exp, vtab, ftab)
+		in case arr of
+			ArrayLit(lst,tp1,p) => Num(List.length lst, pos)
+			| otherwise => raise Error("Missing array to count", pos)
+	end
+  | evalExp (Scan (fid, exp, arrexp,_, _, pos),vtab, ftab) = 
+        let val fexp = SymTab.lookup fid ftab
+            val arr  = evalExp(arrexp, vtab, ftab)
+	    val expe = evalExp(exp, vtab,ftab)
+        in case fexp of
+             NONE   => raise Error("Function "^fid^" Is Not In SymTab!", pos)
+           | SOME f => let val (fid, rtp, fargs, body, pdecl) = f
+                       in case rtp of
+                            UNKNOWN => raise Error("The Return Type of Function "^fid^
+                                                   " Is UNKNOWN: "^pp_type rtp, pos )
+                          | otherwise =>
+                               case arr of
+                                  ArrayLit(lst,tp1,p) =>			
+                                      let val mlst = scan_ (fn (x,b) => callFun(f, [x,b], ftab, pos) ) expe lst
+                                      in  ArrayLit(mlst, rtp, pos)
+                                      end				
+                                | otherwise => raise Error("Second Argument of Map Is Not An Array: "
+                                                            ^pp_exp 0 arr, pos)   
+                       end
+        end
+                       
   | evalExp ( Map (fid, arrexp, _, _, pos), vtab, ftab ) =
         let val fexp = SymTab.lookup fid ftab
             val arr  = evalExp(arrexp, vtab, ftab)
@@ -407,8 +436,6 @@ and callFun ( (fid, rtp, fargs, body, pdcl), aargs, ftab, pcall ) =
                              " In function: "^fid^" Return Type: "^pp_type(rtp)^
                              " Result: "^pp_exp 0 res, pcall)
         end
-
-
 (*********************************************)
 (*** INTERPRETER FOR PRG:                  ***)
 (*** 1. builds the functions' symbol table ***)

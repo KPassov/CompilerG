@@ -39,7 +39,7 @@
        | "True"        => Parser.TRUE (true, pos)
        | "not"         => Parser.NOT pos
        | "scan"        => Parser.SCAN pos
-       | "Length"      => Parser.LENGTH pos
+       | "length"      => Parser.LENGTH pos
        | "op"          => Parser.OP pos
 (* End of Student implementation *)
        | _             => Parser.ID (s, pos)

@@ -1,5 +1,5 @@
 fun char main() = 
         let arrch = {{'p', 'a', 'p', 'a', 'p'}, {'m', 'a', 'm', 'a'}} in
-            let a = scan(f, 'p', {'p','a','c','e'}) in let acsa= write(Length(a)) in let ac = write(a[0]) in let ab = write(a[1]) in let acd =write(a[2]) in let avcb =  write(a[3]) in write(a[4])
+            let a = scan(f, 'p', {'p','a','c','e'}) in let acsa= write(length(a)) in let ac = write(a[0]) in let ab = write(a[1]) in let acd =write(a[2]) in let avcb =  write(a[3]) in write(a[4])
 
 fun char f(char i, char c ) = c
