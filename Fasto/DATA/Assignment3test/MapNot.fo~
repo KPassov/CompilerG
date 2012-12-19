@@ -1,3 +1,0 @@
-fun bool main() = let arrint = {True, False, True} in
-                 let b = map(op not, arrint) in
-                 let as = write(b[0]) in let asv =write(b[1]) in write(b[2])
