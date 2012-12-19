@@ -609,12 +609,17 @@ struct
         end
 (*Operator, List, ElementType, ReturnType, Position*)
     | Fasto.MapOP  (oper, lst, eltp, optp, pos) => 
-        (* let  *)
+        let 
             (* val lst_reg = "_arr_reg_"  ^newName() *)
             (* val inp_addr= "_arr_i_reg_"^newName()  *)
             (* val sz_reg  = "_size_reg_" ^newName() *)
             (* val lst_code  = compileExp lst vtable lst_reg *)
 
+           if optp = Fasto.Bool pos 
+            then f =  
+            else 
+                (* val t = "_reg_temp_" ^newName() *)
+                 (* val f = [Mips.ADDI(t, "0", "-1"), Mips.MUL(t2,  *)
             (* [>**********************************************************************<] *)
             (* [> i = loop count, r = the register that stores the computed f(i) value <] *)
             (* [> How To Compute?                                                      <] *)
@@ -631,14 +636,11 @@ struct
                                      (* @ [Mips.ADDI(inp_addr, inp_addr, "4")] *)
 
         (* [> we use sz_reg to hold the size of the input/output array <] *)
-        (* in  *)
-           if optp = Fasto.Int pos 
-            then raise Error("bool", (0,0))
-            else raise Error("notbool", (0,0))
+        in 
            (* lst_code @ [ Mips.LW(sz_reg, lst_reg, "0")] @ dynalloc(sz_reg, place, rtp) @  *)
            (* [Mips.LW(inp_addr, lst_reg, "4")] @ *)
            (* compileDoLoop( getElSize rtp, sz_reg, place, loopfun, pos ) *)
-        (* end *)
+        end
     (****************************************************)
     (*** CompileDoLoop assumes the result is an array ***)
     (***   so we cannot use it here, instead we write ***)

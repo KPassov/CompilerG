@@ -158,7 +158,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         in ArrayLit(exps, Char(pos), pos)
         end
 
-  (* | evalExp ( Not(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab) *)
+  | evalExp ( Not(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab)
   | evalExp ( Negate(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab)
   | evalExp ( Var(id, pos), vtab, ftab ) =
         let val res = SymTab.lookup id vtab
@@ -330,9 +330,13 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
                                                             ^pp_exp 0 arr, pos)   )
                        end
         end
+   (*There is no function to lookup in the ftable*)
+  | evalExp ( MapOP (_, arrexp, _, _, pos), vtab, ftab ) = evalExp(arrexp, vtab, ftab)
+  | evalExp ( ReduceOP(_, ne, arrexp, _, pos), vtab, ftab) = 
+       let  val arr = evalExp(arrexp, vtab, ftab) 
+       in   evalExp(ne, vtab, ftab)
+       end
 
-  (* | evalExp ( MapOP (_, arrexp, _, _, pos), vtab, ftab ) = *)
-  
   | evalExp ( Reduce (fid, ne, arrexp, tp, pos), vtab, ftab ) =
         let val fexp = SymTab.lookup fid ftab
             val arr  = evalExp(arrexp, vtab, ftab)

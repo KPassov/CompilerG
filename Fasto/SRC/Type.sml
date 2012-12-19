@@ -294,15 +294,15 @@ struct
                val el_type 
                  = case arr_type of
                       Fasto.Array (t,_) => t
-                    | other => raise Error ("Reduce: Argument not an array",pos)
+                    | other => raise Error ("Reduce: Argument not an array?",pos)
                val oper_type = Fasto.Int pos
                fun err (s,t) = Error ("Reduce: unexpected " ^ s ^ " type "
                                       ^ Fasto.pp_type t ^ ", expected "
                                       ^ Fasto.pp_type oper_type, pos)
            in if typesEqual (el_type, oper_type) 
               then if typesEqual (el_type, n_type)
-                   then (unifyTypes pos (t, el_type),
-                         Fasto.ReduceOP (oper,n_dec, arr_dec, el_type, pos))
+                   then (unifyTypes pos (t, el_type), 
+                         Fasto.ReduceOP (oper,n_dec, arr_dec, el_type, pos)) 
                    else raise (err ("neutral element", n_type))
               else raise err ("array element", el_type)
            end
