@@ -1,0 +1,3 @@
+fun int main() = let arrint = {True, False, True} in
+                 let b = map(op not, arrint) in
+                 write(b[1])
