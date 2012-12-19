@@ -29,7 +29,8 @@ class TestFile(object):
     valid_sections = {
         'stdout': '.out',
         'stdin': '.in',
-        'compile': '.err'
+        'compile': '.err',
+	'smlCompile': '.smlout'
     }
 
     def __init__(self, filename):
@@ -74,17 +75,34 @@ class TestFile(object):
 
     def run_test(self):
         sections = self.read_test()
+	self.compile_and_testSML(sections)
         self.compile_and_test(sections)
         if 'stdout' in sections or 'stderr' in sections:
             self.test_output(sections)
         if 'ast' in sections:
             self.test_ast(sections)
+ 
+    def compile_and_testSML(self, sections):
+        if not os.path.exists(self.base + '.fo'):
+            return
+	self.print_diff(self.base)
+        p = Popen([CFasto, "-i", self.base], stdout=PIPE, stderr=STDOUT)
+        self.print_test('SML compile')
+
+        output = p.communicate()[0].decode()
+        result = self.compare_output(output, sections, 'smlCompile')
+        if result:
+            self.print_fail()
+            self.print_diff(result)
+        else:
+            self.print_pass()
 
     def compile_and_test(self, sections):
         if not os.path.exists(self.base + '.fo'):
             return
         p = Popen([CFasto, self.base], stdout=PIPE, stderr=STDOUT)
         self.print_test('compile')
+
         output = p.communicate()[0].decode()
         result = self.compare_output(output, sections, 'compile')
         if result:
@@ -92,6 +110,7 @@ class TestFile(object):
             self.print_diff(result)
         else:
             self.print_pass()
+
 
     def test_output(self, sections):
         self.print_test('output')

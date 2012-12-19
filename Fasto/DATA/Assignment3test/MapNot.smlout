@@ -1,0 +1,17 @@
+Program is:
+
+
+
+fun bool main( ) = 
+  
+    let arrint =  { true, false, true }  in  
+        let b = mapop (  not  , arrint )  in  
+            let asds = write(length ( b ) )  in  
+                let as = write(b[ 0 ])  in  
+                    let asv = write(b[ 1 ])  in  write(b[ 2 ]) 
+
+
+Input/Output:
+3 0 1 0 
+
+RESULT: false
