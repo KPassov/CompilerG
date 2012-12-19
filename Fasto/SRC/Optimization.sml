@@ -81,7 +81,76 @@ structure Optimization  = struct
             livefs : string list, 
             ftab   : (string * Fasto.FunDec) list  
       ) : string list 
-    = map (fn (fid, fdec) => fid) ftab
+    = case exp of
+	Plus (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+	|Times (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+
+	|Minus (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+
+	|Divide (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+
+	|Equal (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+
+	|Less (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+
+	|Or (e1, e2, p) =>
+		live_funs(e2, live_funs(e1, livefs, ftab), ftab)
+	
+	|Not (e1, p) =>
+		live_funs(e1, livefs, ftab)
+
+	|Negate (e1, p) =>
+		live_funs(e1, livefs, ftab)
+
+	|Length (e1, tp, p) =>
+		live_funs(e1, livefs, ftab)
+
+	|Write (e1, tp, p) =>
+		live_funs(e1, livefs, ftab)
+
+	|Map(fid, e, t1,t2,p)  => let val elives = live_funs(e, livefs, ftab)
+		in case (List.exists (fn x=> if x=fid then true else false) elives) of
+			true => elives
+			| false => (case (SymTab.lookup fid ftab) of
+				 NONE => raise NotInSymTab(fid)
+				| SOME f=> live_funs(getFunBody(f), fid::elives, ftab))
+		end
+
+	|Scan(fid, e,e2, t1,t2,p)  => 
+		let val elives = live_funs(e, live_funs(e2, livefs, ftab), ftab)
+		 in case (List.exists (fn x=> if x=fid then true else false) elives) of
+			true => elives
+			| false => (case (SymTab.lookup fid ftab) of
+				 NONE => raise NotInSymTab(fid)
+				| SOME f=> live_funs(getFunBody(f), fid::elives, ftab))
+		end
+
+	|MapOP(oper, e, t1,t2,p)  => live_funs(e, livefs, ftab)
+
+	|ReduceOP(oper, e,e2, t1,p)  => live_funs(e, live_funs(e2, livefs,ftab), ftab)
+
+	|If(e, e2, e3,p)  => live_funs(e, live_funs(e2, live_funs(e3,livefs,ftab), ftab),ftab)
+ 	
+	|ArrayLit(explst, t, p) => foldl (fn (x,acc) =>live_funs(x, acc,ftab)) livefs explst
+
+ 	|Apply(fid, explst, p) =>let val elives =
+				 foldl (fn (x,acc) =>live_funs(x, acc,ftab)) livefs explst
+				in case (List.exists 
+					(fn x=> if x=fid then true else false) elives) of
+					true => elives
+					| false =>  (case (SymTab.lookup fid ftab) of
+						 NONE => raise NotInSymTab(fid)
+						| SOME f=> 
+						live_funs(getFunBody(f), fid::elives, ftab))
+		end
+	| otherwise => livefs
+
 
 
   fun dead_fun_elim ( funs : Fasto.FunDec list ) : FunDec list = 
