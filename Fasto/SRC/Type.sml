@@ -218,7 +218,7 @@ struct
       | Fasto.Length (arr,t,pos) 
 	=> let val (arr_type, arr_dec) = expType vs arr
 		in case arr_type of
-			Fasto.Array (t,_) => (Fasto.Int pos, e)
+			Fasto.Array (t,_) => (Fasto.Int pos,e)
 		|	other => raise Error ("Length: argument not an array", pos)
 	   end
       | Fasto.Scan (f, el, arr, arg_t, rtp, pos) 
