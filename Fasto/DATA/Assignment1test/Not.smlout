@@ -1,0 +1,16 @@
+Program is:
+
+
+
+fun bool main( ) = 
+  
+    let a = true in  
+        let b = write(a)  in  
+            let c = a in  
+                let d = write(c)  in  write(c) 
+
+
+Input/Output:
+1 0 1 
+
+RESULT: true

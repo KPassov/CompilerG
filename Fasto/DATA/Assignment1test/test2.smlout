@@ -1,0 +1,15 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let a =  ( 3 +  ( 3 * 3 )  )  in  
+        let c = write(a)  in  
+            let b =  (  ( 3 * 3 )  + 3 )  in  write(b) 
+
+
+Input/Output:
+12 12 
+
+RESULT: 12

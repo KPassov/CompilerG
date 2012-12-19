@@ -1,0 +1,16 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    if( false )
+      then write(0) 
+      else write(1) 
+  
+
+
+Input/Output:
+1 
+
+RESULT: 1

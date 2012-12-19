@@ -1,0 +1,15 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let a = 5 in  
+        let q = write(a)  in  
+            let b = Error unknown input from Parser.sml in  write(b) 
+
+
+Input/Output:
+5 ~5 
+
+RESULT: ~5

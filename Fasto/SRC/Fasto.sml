@@ -123,8 +123,7 @@ struct
     | pp_exp d (Let   (Dec(id, e1, pos1), e2, pos2)) = 
                 "\n"^makeDepth(d+1)^"let " ^ id ^ " = " ^ pp_exp (d+2) e1 ^ 
                 " in  " ^ pp_exp (d+2) e2
-    | pp_exp d (Index (id, e, t, pos))       =
-                id ^ "[ " ^ pp_exp d e ^ " ]"
+    | pp_exp d (Index (id, e, t, pos))       = id ^ "[ " ^ pp_exp d e ^ " ]"
     (* Array Constructs *)
     | pp_exp d (Iota (e, pos))         = "iota ( " ^ pp_exp d e ^ " ) "
     | pp_exp d (Map(id, e, _,_, pos))    = "map ( " ^ id ^ ", " ^ pp_exp d e ^ " ) "
