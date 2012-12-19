@@ -1,0 +1,14 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let arrint =  { 1, 2, 3, 4 }  in  
+        let b = reduceop (  / , 1, arrint )  in  write(b) 
+
+
+Input/Output:
+4 
+
+RESULT: 4

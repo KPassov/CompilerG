@@ -1,4 +1,4 @@
-fun int parathes(int a) =
+fun int hirachy(int a) =
         let b = a * 2 in
         let q = write(b) in
         let a = b * 2 in
@@ -6,4 +6,4 @@ fun int parathes(int a) =
         let c = a * (0 + 2) in
         write(c)
 
-fun int main () = parathes(read(int))
+fun int main () = hirachy(2)

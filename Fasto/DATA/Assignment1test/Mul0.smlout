@@ -1,0 +1,13 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let a =  ( 4 * 0 )  in  write(a) 
+
+
+Input/Output:
+0 
+
+RESULT: 0

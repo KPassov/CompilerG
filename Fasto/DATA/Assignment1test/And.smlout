@@ -1,0 +1,19 @@
+Program is:
+
+
+
+fun bool main( ) = 
+  
+    let a =  ( false & true )  in  
+        let b = write(a)  in  
+            let c =  ( true & false )  in  
+                let d = write(c)  in  
+                    let e =  ( true & true )  in  
+                        let f = write(e)  in  
+                            let g =  ( false & false )  in  write(g) 
+
+
+Input/Output:
+0 0 1 0 
+
+RESULT: false

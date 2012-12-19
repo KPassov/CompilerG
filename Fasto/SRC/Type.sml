@@ -266,7 +266,36 @@ struct
                                 ^ Fasto.pp_type el_type ^ "instead of " 
                                 ^ Fasto.pp_type f_arg_type , pos)
            end
-      | Fasto.MapOP (oper, arr, arg_t, res_t, pos)
+      | Fasto.Reduce (f, n, arr, t, pos)
+        => let val (n_type, n_dec) = expType vs n
+               val (arr_type, arr_dec) = expType vs arr
+               val el_type 
+                 = case arr_type of
+                      Fasto.Array (t,_) => t
+                    | other => raise Error ("Reduce: Argument not an array",pos)
+               val f_arg_type 
+                 = case SymTab.lookup f (!functionTable) of
+                       NONE => raise Error ("Unknown identifier " ^ f, pos)
+                     | SOME ([a1,a2],res) 
+                       => if typesEqual (a1,a2) andalso typesEqual (a2,res)
+                          then res 
+                          else raise Error 
+                                  ("Reduce: incompatible function type of "
+                                   ^ f ^": " ^ showFunType ([a1,a2],res),pos)
+                     | SOME (args,r) 
+                       => raise Error ("Reduce: incompatible function type of " 
+                                       ^ f ^ ": " ^ showFunType (args,r),pos)
+               fun err (s,t) = Error ("Reduce: unexpected " ^ s ^ " type "
+                                      ^ Fasto.pp_type t ^ ", expected "
+                                      ^ Fasto.pp_type f_arg_type, pos)
+           in if typesEqual (el_type, f_arg_type) 
+              then if typesEqual (el_type, n_type)
+                   then (unifyTypes pos (t, el_type),
+                         Fasto.Reduce (f,n_dec, arr_dec, el_type, pos))
+                   else raise (err ("neutral element", n_type))
+              else raise err ("array element", el_type)
+           end
+     | Fasto.MapOP (oper, arr, arg_t, res_t, pos)
         => let val (arr_type, arr_dec) = expType vs arr
                val el_type 
                  = case arr_type of
@@ -301,35 +330,6 @@ struct
               then if typesEqual (el_type, n_type)
                    then (unifyTypes pos (t, el_type), 
                          Fasto.ReduceOP (oper,n_dec, arr_dec, el_type, pos)) 
-                   else raise (err ("neutral element", n_type))
-              else raise err ("array element", el_type)
-           end
-      | Fasto.Reduce (f, n, arr, t, pos)
-        => let val (n_type, n_dec) = expType vs n
-               val (arr_type, arr_dec) = expType vs arr
-               val el_type 
-                 = case arr_type of
-                      Fasto.Array (t,_) => t
-                    | other => raise Error ("Reduce: Argument not an array",pos)
-               val f_arg_type 
-                 = case SymTab.lookup f (!functionTable) of
-                       NONE => raise Error ("Unknown identifier " ^ f, pos)
-                     | SOME ([a1,a2],res) 
-                       => if typesEqual (a1,a2) andalso typesEqual (a2,res)
-                          then res 
-                          else raise Error 
-                                  ("Reduce: incompatible function type of "
-                                   ^ f ^": " ^ showFunType ([a1,a2],res),pos)
-                     | SOME (args,r) 
-                       => raise Error ("Reduce: incompatible function type of " 
-                                       ^ f ^ ": " ^ showFunType (args,r),pos)
-               fun err (s,t) = Error ("Reduce: unexpected " ^ s ^ " type "
-                                      ^ Fasto.pp_type t ^ ", expected "
-                                      ^ Fasto.pp_type f_arg_type, pos)
-           in if typesEqual (el_type, f_arg_type) 
-              then if typesEqual (el_type, n_type)
-                   then (unifyTypes pos (t, el_type),
-                         Fasto.Reduce (f,n_dec, arr_dec, el_type, pos))
                    else raise (err ("neutral element", n_type))
               else raise err ("array element", el_type)
            end

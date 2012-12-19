@@ -1,0 +1,15 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let arrch =  {  { 'p', 'a', 'p', 'a', 'p' } ,  { 'm', 'a', 'm', 'a' }  }  in  
+        let a = write(length ( arrch ) )  in  
+            let b = write(length (  { 1, 2, 3, 4, 5, 6, 7 }  ) )  in  write(length (  {  {  {  { 1 }  }  }  }  ) ) 
+
+
+Input/Output:
+2 7 1 
+
+RESULT: 1

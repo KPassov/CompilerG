@@ -1,0 +1,21 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let div = divide( 8 )  in  
+        let a = write(div)  in  
+            let mul = times( 2 )  in  write(mul) 
+
+fun int times( int  a) = 
+   ( a * 2 ) 
+
+fun int divide( int  a) = 
+   ( a / 2 ) 
+
+
+Input/Output:
+4 4 
+
+RESULT: 4

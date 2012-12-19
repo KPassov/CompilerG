@@ -1,0 +1,17 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let a = true in  
+        if( a )
+          then write(1) 
+          else write(0) 
+      
+
+
+Input/Output:
+1 
+
+RESULT: 1
