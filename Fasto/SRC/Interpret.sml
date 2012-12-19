@@ -29,6 +29,41 @@ fun getFunPos (_,_,_,_,pos)= pos
 fun scan_ f x [] = []
     | scan_ f x (a::rest) = x::scan_ f (f (x,a)) rest;
 
+fun numPlus (Num (x, pos),Num(y,posy)) = Num(x + y, pos)
+  | numPlus (_,_) = raise Error("ReduceOP: not a known type", (0,0)) 
+  (* We can use 0,0 because it will never reach this point with any input*)
+
+fun numMinus (Num (x, pos),Num(y,posy)) = Num(x - y, pos)
+  | numMinus (_,_) = raise Error("ReduceOP: not a known type", (0,0)) 
+
+fun numTimes (Num (x, pos),Num(y,posy)) = Num(x * y, pos)
+  | numTimes (_,_) = raise Error("ReduceOP: not a known type", (0,0))
+
+fun numDivide (Num (x, pos),Num(y,posy)) = Num(x div y, pos)
+  | numDivide (_,_) = raise Error("ReduceOP: not a known type", (0,0))
+
+fun boolNot (Log(x, pos)) = Log(not x, pos)
+  | boolNot _ = raise Error("MapOP: not a known type", (0,0))
+
+fun numNegate (Num(x, pos)) = Num(x * ~1, pos)
+  | numNegate  _ = raise Error("MapOP: not a known type", (0,0))
+
+fun reduceFoldl(oper, ne, lst, pos) =
+        case oper of 
+              Fasto.PluOP pos => foldl numPlus ne lst
+           |  Fasto.MinOP pos => foldl numMinus ne lst
+           |  Fasto.DivOP pos => foldl numDivide ne lst
+           |  Fasto.TimOP pos => foldl numTimes ne lst
+           |  _ => 
+               raise Error("First Argument of ReduceOP is not a vaild operator", pos) 
+
+fun mapHelper(oper, lst, pos) = 
+  case oper of
+       Fasto.NegOP pos => map numNegate lst
+     | Fasto.NotOP pos => map boolNot lst
+     | otherwise => raise Error("First argument of MapOP is not a valid operator " , pos)
+     
+
 (*************************************************)
 (*** Function table associates a function name ***)
 (***   its declaration, i.e. Fasto.FunDec      ***) 
@@ -158,8 +193,8 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         in ArrayLit(exps, Char(pos), pos)
         end
 
-  | evalExp ( Not(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab)
-  | evalExp ( Negate(e, pos), vtab, ftab ) = evalExp(e, vtab, ftab)
+  | evalExp ( Not(e, pos), vtab, ftab ) = Not(e, pos)
+  | evalExp ( Negate(e, pos), vtab, ftab ) = Negate(e, pos)
   | evalExp ( Var(id, pos), vtab, ftab ) =
         let val res = SymTab.lookup id vtab
         in case res of 
@@ -195,7 +230,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
   | evalExp ( Equal(e1, e2, pos), vtab, ftab ) =
         let val r1 = evalExp(e1, vtab, ftab)
             val r2 = evalExp(e2, vtab, ftab)
-	in evalEq(r1, r2, pos)
+    	in evalEq(r1, r2, pos)
 	end
 
   | evalExp ( Less(e1, e2, pos), vtab, ftab ) =
@@ -330,11 +365,25 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
                                                             ^pp_exp 0 arr, pos)   )
                        end
         end
-   (*There is no function to lookup in the ftable*)
-  | evalExp ( MapOP (_, arrexp, _, _, pos), vtab, ftab ) = evalExp(arrexp, vtab, ftab)
-  | evalExp ( ReduceOP(_, ne, arrexp, _, pos), vtab, ftab) = 
+
+  | evalExp ( MapOP (oper, arrexp, _, _, pos), vtab, ftab ) = 
+       let val arr = evalExp(arrexp, vtab, ftab)                              
+       in ( case arr of
+               ArrayLit(lst,tp1,p) =>
+               let val mlst = mapHelper(oper, lst, pos) 
+               in  ArrayLit(mlst, tp1, pos)
+               end
+              | otherwise => raise Error("Second Argument of MapOP Is Not An Array: "
+                                           ^pp_exp 0 arr, pos)   )
+       end
+
+  | evalExp ( ReduceOP(oper, ne, arrexp, _, pos), vtab, ftab) = 
        let  val arr = evalExp(arrexp, vtab, ftab) 
-       in   evalExp(ne, vtab, ftab)
+            val nel = evalExp(ne, vtab, ftab)
+       in ( case arr of
+             ArrayLit(lst,tp1,p) => reduceFoldl(oper, ne, lst, pos) 
+             | otherwise => raise Error("Third Argument of Reduce Is Not An Array: "^
+                                         pp_exp 0 arr, pos)  ) 
        end
 
   | evalExp ( Reduce (fid, ne, arrexp, tp, pos), vtab, ftab ) =

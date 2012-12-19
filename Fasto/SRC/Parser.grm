@@ -6,7 +6,7 @@
 %token <bool*(int*int)> TRUE FALSE
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY OP
 %token <(int*int)> COMMA
-%token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE ZIPWITH SCAN LENGTH
+%token <(int*int)> FUN IOTA REPLICATE MAP REDUCE READ WRITE SCAN LENGTH
 %nonassoc ifprec letprec
 %left OR 
 %left AND

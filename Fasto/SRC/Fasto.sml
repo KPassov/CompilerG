@@ -63,9 +63,6 @@ struct
 
     
     (* second-order-array combinators *)
-    | ZipWith of string * Exp * Exp * Type * Type * Type * pos  (* zipWith(plus, {1,2,3}, {4,5,6}) == {5, 7, 9} *)
-                                                                   (* The first  Type is the first  input-array element type *)
-                                                                   (* The second Type is the second input-array element type *)
     | Scan of string * Exp * Exp * Type * Type* pos                   (* scan plus 0 { 1, 2, 3 } = { 0, 1, 3, 6 } *)
                                                                    (* Types same as Map. Type is the input-array element type *)
     | Length of Exp * Type * pos                       (* length({1,2,3}) = 3 *) 
@@ -98,7 +95,7 @@ struct
     | pp_exp d (Log   (b,  pos))        = Bool.toString b
     | pp_exp d (CharLit (c,  pos))      = "'" ^ Char.toCString c ^ "'"
     | pp_exp d (StringLit (s,  pos))    = "\"" ^ String.toCString s ^ "\""
-    (* | pp_exp d (Not   (e, pos))         = pp_exp d e *)
+    | pp_exp d (Not   (e, pos))         = pp_exp d e
     | pp_exp d (ArrayLit (lst, t, pos)) = 
         ( case lst of
             [ ]    => " { } "
@@ -137,7 +134,7 @@ struct
     | pp_exp d (Read (t,p)) = "read(" ^pp_type t ^") "
     | pp_exp d (Write (e,t,p)) = "write(" ^pp_exp d e ^") "
     | pp_exp d (MapOP(oper, e, _,_, pos))    = "mapop ( " ^ pp_operator oper ^ ", " ^ pp_exp d e ^ " ) "
-    | pp_exp d (ReduceOP(oper, el, lst, t, pos)) = "reduce ( "^ pp_operator oper ^", "^pp_exp d el^", "^pp_exp d lst^" ) " 
+    | pp_exp d (ReduceOP(oper, el, lst, t, pos)) = "reduceop ( "^ pp_operator oper ^", "^pp_exp d el^", "^pp_exp d lst^" ) " 
     | pp_exp d (_) = "Error unknown input from Parser.sml" 
 
   (* pretty printing a type *)
