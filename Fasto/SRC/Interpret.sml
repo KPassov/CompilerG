@@ -193,8 +193,18 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         in ArrayLit(exps, Char(pos), pos)
         end
 
-  | evalExp ( Not(e, pos), vtab, ftab ) = Not(e, pos)
-  | evalExp ( Negate(e, pos), vtab, ftab ) = Negate(e, pos)
+  | evalExp ( Not(x, pos), vtab, ftab ) = let val exp = evalExp(x,vtab,ftab) 
+				in case exp of
+				Log(true, _) => Log(false,pos)
+				|Log(false,_) => Log(true,pos)
+				| _ => raise Error("Not a boolean", pos)
+			end
+  | evalExp ( Negate(x, pos), vtab, ftab ) = let val n = evalExp(x, vtab,ftab) in 
+				case n of
+					Num(numer,_) => Num(numer*(~1),pos)
+					|_ => raise Error("Not a number",pos)
+				
+	end
   | evalExp ( Var(id, pos), vtab, ftab ) =
         let val res = SymTab.lookup id vtab
         in case res of 
@@ -219,6 +229,26 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
         let val res1   = evalExp(e1, vtab, ftab)
             val res2   = evalExp(e2, vtab, ftab)
         in  evalBinop(op *, res1, res2, pos)
+        end
+  | evalExp ( And(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+        in  case res1 of
+		Log (true,_) => (case evalExp(e2, vtab, ftab) of
+				Log (true,_) => Log(true,pos)
+				|Log(false,_) => Log(false,pos)
+				| _ => raise Error("UNKNOWN condition", pos))
+		|Log (false,_)=> Log(false,pos)
+		| _ => raise Error("UNKNOWN condition", pos)
+        end
+| evalExp ( Or(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+        in  case res1 of
+		Log (false,_) => (case evalExp(e2, vtab, ftab) of
+				Log (true,_) => Log(true,pos)
+				|Log(false,_) => Log(false,pos)
+				| _ => raise Error("UNKNOWN condition", pos))
+		|Log (true,_)=> Log(true,pos)
+		| _ => raise Error("UNKNOWN condition", pos)
         end
 
   | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
@@ -325,6 +355,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
 			ArrayLit(lst,tp1,p) => Num(List.length lst, pos)
 			| otherwise => raise Error("Missing array to count", pos)
 	end
+
   | evalExp (Scan (fid, exp, arrexp,_, _, pos),vtab, ftab) = 
         let val fexp = SymTab.lookup fid ftab
             val arr  = evalExp(arrexp, vtab, ftab)
@@ -338,7 +369,7 @@ fun evalExp ( Num      (n,    pos), vtab, ftab ) = Num     (n,pos)
                           | otherwise =>
                                case arr of
                                   ArrayLit(lst,tp1,p) =>			
-                                      let val mlst = scan_ (fn (x,b) => callFun(f, [x,b], ftab, pos) ) expe lst
+                                      let val mlst = expe::scan_ (fn (x,b) => callFun(f, [x,b], ftab, pos) ) expe lst
                                       in  ArrayLit(mlst, rtp, pos)
                                       end				
                                 | otherwise => raise Error("Second Argument of Map Is Not An Array: "
