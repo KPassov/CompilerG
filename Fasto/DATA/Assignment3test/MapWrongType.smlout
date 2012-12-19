@@ -1,0 +1,13 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let arrint =  { 1, 2, 3, 4 }  in  
+        let b = mapop (  not  , arrint )  in  write(b) 
+
+
+Input/Output:
+Interpreter error: MapOP: not a known type 
+Line 0, column 0.
