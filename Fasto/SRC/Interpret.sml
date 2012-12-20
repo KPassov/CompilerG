@@ -29,17 +29,17 @@ fun getFunPos (_,_,_,_,pos)= pos
 fun scan_ f x [] = []
     | scan_ f x (a::rest) = x::scan_ f (f (x,a)) rest;
 
-fun numPlus (Num (x, pos),Num(y,posy)) = Num(x + y, pos)
+fun numPlus (Num (x, pos),Num(y,posy)) = Num(y + x, pos)
   | numPlus (_,_) = raise Error("ReduceOP: not a known type", (0,0)) 
   (* We can use 0,0 because it will never reach this point with any input*)
 
-fun numMinus (Num (x, pos),Num(y,posy)) = Num(x - y, pos)
+fun numMinus (Num (x, pos),Num(y,posy)) = Num(y - x, pos)
   | numMinus (_,_) = raise Error("ReduceOP: not a known type", (0,0)) 
 
-fun numTimes (Num (x, pos),Num(y,posy)) = Num(x * y, pos)
+fun numTimes (Num (x, pos),Num(y,posy)) = Num(y * x, pos)
   | numTimes (_,_) = raise Error("ReduceOP: not a known type", (0,0))
 
-fun numDivide (Num (x, pos),Num(y,posy)) = Num(x div y, pos)
+fun numDivide (Num (x, pos),Num(y,posy)) = Num(y div x, pos)
   | numDivide (_,_) = raise Error("ReduceOP: not a known type", (0,0))
 
 fun boolNot (Log(x, pos)) = Log(not x, pos)
