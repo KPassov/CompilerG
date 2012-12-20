@@ -59,7 +59,7 @@ struct
         case tp of Fasto.Char(p) => 1 | Fasto.Bool(p) => 1 | otherwise => 4
 
  (*********************************************************************)
-  (* Helper functions for not and negate                  *)
+  (* Helper functions for not and negate   and reduce               *)
   (*********************************************************************)
    
    fun Not_(e, reg, truelabel, falselabel, pos) = 
@@ -73,6 +73,15 @@ end
    fun Negate_(e, place,pos) = []
 
 
+  fun reduceOPHelper(oper, [a1,a2],res_reg,pos) =
+	case oper of 
+		Fasto.PluOP pos => [Mips.ADD(res_reg,a1,a2)]
+	      | Fasto.MinOP pos => [Mips.SUB(res_reg, a1,a2)]
+	      | Fasto.DivOP pos => [Mips.DIV(res_reg, a1,a2)]
+	      | Fasto.TimOP pos => [Mips.MUL(res_reg,a1,a2)]
+	      | otherwise => raise Error("Wrong operator", pos)
+	      | _ => raise Error("Really... Very much the wrong operator",pos)
+	
   (*********************************************************************)
   (* generates the code to check that the array index is within bounds *)
   (* THIS IS SUPPOSED TO BE PART OF THE PROJECT!!!                     *)
@@ -684,6 +693,28 @@ end
            header   @ ApplyRegs(bop,[place,tmp_reg],place,pos) @ 
            [ Mips.ADDI(i_reg,i_reg,"1"), Mips.J loop_beg, Mips.LABEL loop_end ]
         end
+    | Fasto.ReduceOP  (oper,ne,lst,tp,pos) => 
+        let val lst_reg   = "_arr_reg_"  ^newName()
+            val sz_reg    = "_size_reg_" ^newName()
+            val tmp_reg   = "_tmp_reg_" ^newName()
+            val i_reg     = "_ind_var_" ^newName()
+            val loop_beg  = "_loop_beg_"^newName()
+            val loop_end  = "_loop_end_"^newName()
+            val is_1      = ((getElSize tp) = 1)
+ 
+            val lst_code  = compileExp lst vtable lst_reg
+            val  ne_code  = compileExp ne  vtable tmp_reg             
+            val header    = [ Mips.LW(lst_reg,lst_reg,"4"),   Mips.MOVE(i_reg,"0"), 
+                              Mips.MOVE(place,tmp_reg),       Mips.LABEL(loop_beg), 
+                              Mips.SUB(tmp_reg,i_reg,sz_reg), Mips.BGEZ(tmp_reg, loop_end) ] @
+                ( if ( is_1 ) then [ Mips.LB(tmp_reg,lst_reg,"0"), Mips.ADDI(lst_reg,lst_reg,"1") ] 
+                              else [ Mips.LW(tmp_reg,lst_reg,"0"), Mips.ADDI(lst_reg,lst_reg,"4") ] )
+
+        in lst_code @ [ Mips.LW(sz_reg,lst_reg,"0")] @ ne_code @ 
+           header   @ reduceOPHelper(oper, [place,tmp_reg],place,pos) @ 
+           [ Mips.ADDI(i_reg,i_reg,"1"), Mips.J loop_beg, Mips.LABEL loop_end ]
+        end
+
     | _ => raise Error("Compiler: Unknown Token from Intepreter", (0,0))
 
   (**********************************)
