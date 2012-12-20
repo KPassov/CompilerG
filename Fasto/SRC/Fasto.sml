@@ -58,8 +58,9 @@ struct
     | Or of Exp * Exp * pos
     | Not of Exp * pos
     | Negate of Exp * pos
-    | MapOP of Operator * Exp * Type * Type * pos    (**)
-    | ReduceOP of Operator * Exp * Exp * Type * pos  (*  *)
+
+    | MapOP of Operator * Exp * Type * Type * pos    
+    | ReduceOP of Operator * Exp * Exp * Type * pos  
 
     
     (* second-order-array combinators *)
@@ -95,7 +96,6 @@ struct
     | pp_exp d (Log   (b,  pos))        = Bool.toString b
     | pp_exp d (CharLit (c,  pos))      = "'" ^ Char.toCString c ^ "'"
     | pp_exp d (StringLit (s,  pos))    = "\"" ^ String.toCString s ^ "\""
-    | pp_exp d (Not   (e, pos))         = pp_exp d e
     | pp_exp d (ArrayLit (lst, t, pos)) = 
         ( case lst of
             [ ]    => " { } "
@@ -106,6 +106,7 @@ struct
     | pp_exp d (Minus  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " - " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (Divide (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " / " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (Times  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " * " ^ pp_exp d e2 ^ " ) "
+    | pp_exp d (Not   (e, pos))         = pp_exp d e
     | pp_exp d (Equal  (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " = " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (Less   (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " < " ^ pp_exp d e2 ^ " ) "
     | pp_exp d (Or     (e1, e2, pos))    = " ( " ^ pp_exp d e1 ^ " | " ^ pp_exp d e2 ^ " ) "

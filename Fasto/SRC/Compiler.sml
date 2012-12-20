@@ -63,15 +63,12 @@ struct
   (*********************************************************************)
    
    fun Not_(e, reg, truelabel, falselabel, pos) = 
-	   let  val endlabel   = "_endnot_"^newName()
-
+	    let  val endlabel   = "_endnot_"^newName()
         in  [Mips.LABEL truelabel, Mips.LI (reg, makeConst 0),
                    Mips.J endlabel,
                    Mips.LABEL falselabel, Mips.LI (reg, makeConst 1),
                    Mips.LABEL endlabel]
-end
-   fun Negate_(e, place,pos) = []
-
+        end
 
   fun reduceOPHelper(oper, [a1,a2],res_reg,pos) =
 	case oper of 
@@ -294,11 +291,11 @@ end
         end
     | Fasto.Not (e, pos) =>
        	   let val truelabel  = "_not1_"^newName()
-            val falselabel = "_not2_"^newName()
-            val code = compileCond e vtable truelabel falselabel
-		 val  not= Not_(e,place,truelabel, falselabel, code)
-	in code @ not
-        end
+               val falselabel = "_not2_"^newName()
+               val code = compileCond e vtable truelabel falselabel
+		       val  notc = Not_(e,place,truelabel, falselabel, code)
+	        in code @ notc
+            end
     | Fasto.Negate (e, pos) =>
         let val num   = "_neg1_"^newName()
             val code = compileExp e vtable num
@@ -637,7 +634,7 @@ end
             val t1  = "_t1_" ^newName()
             val lst_code  = compileExp lst vtable lst_reg
             val truelabel  = "_not1_"^newName()
-  	    val falselabel = "_not2_"^newName()
+      	    val falselabel = "_not2_"^newName()
 		
             (************************************************************************)
             (* i = loop count, r = the register that stores the computed f(i) value *)
@@ -762,26 +759,6 @@ end
 	  code1 @ code2 @
 	  [Mips.SLT (t1,t1,t2), Mips.BNE (t1,"0",tlab),Mips.J flab]
 	end
-(*
-    | Fasto.Not (c1,pos) => compileCond c1 vtable flab tlab
-    (* jumping code for and and or, Mips instructions unused *)
-    | Fasto.And (c1,c2,pos) => 
-        let
-	  val l1 = "_and_"^newName()
-          val code1 = compileCond c1 vtable l1 flab
-          val code2 = compileCond c2 vtable tlab flab
-	in
-	  code1 @ [Mips.LABEL l1] @ code2
-	end
-    | Fasto.Or (c1,c2,pos) => 
-        let
-	  val l1 = "_or_"^newName()
-          val code1 = compileCond c1 vtable tlab l1
-          val code2 = compileCond c2 vtable tlab flab
-	in
-	  code1 @ [Mips.LABEL l1] @ code2
-	end
-*)
 (* implicit num->bool conversion (all !=0 is true) *)
     | _ =>  let val t1 = "_exp_"^newName()
                 val code1 = compileExp c vtable t1

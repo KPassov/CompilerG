@@ -1,0 +1,10 @@
+We have recieved a python script from a student who took the course last year, that we modified to work
+with Fasto. The script is added in the appendix. We liked this script as it made it easy to create subfolders
+with test and do selective testing. In DATA we have created 5 testfolders that tests the respective assigment
+and one folder named InitialTests, that holds all the given tests. The script should work on most operatives
+systems with python installed, but it requires a manual compilation of Fasto, so it is needed to run compile.sh or 
+compile.bat before using the script.
+With the changing of the test script some modifications to the .out files has been made. The 2 lines of copyrigth
+has been ignored and is not part of the suspected output.
+The testfile is saved as *.fo, the test input is *.in, the output from the
+compiler is *.out and the intepreter output is *.smlout.
