@@ -1,0 +1,41 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let data2 = write(map ( chr, data2()  ) )  in  
+        let newline = write('\n')  in  
+            let data = write(replaceE( data()  ) )  in  
+                let nums = map ( ord, data2 )  in  writeArrInt( nums ) 
+
+fun int writeInt( int  i) = 
+  write(i) 
+
+fun int writeArrInt( [ int  ]  arr) = 
+  
+    let a = write(" { ")  in  
+        let b = map ( writeInt, arr )  in  
+            let c = write(" } ")  in  0
+
+fun char replace1E( char  c) = 
+  
+    if(  ( c = 'e' )  )
+      then '#'
+      else c
+  
+
+fun [ char  ] replaceE( [ char  ]  str) = 
+  map ( replace1E, str ) 
+
+fun [ char  ] data( ) = 
+  "Hello World"
+
+fun [ int  ] data2( ) = 
+   { 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100 } 
+
+
+Input/Output:
+Hello World \n H#llo World  {  72 101 108 108 111 32 87 111 114 108 100  }  
+
+RESULT: 0

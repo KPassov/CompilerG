@@ -1,0 +1,33 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let str = "mamam\n" in  
+        let a = write(str)  in  
+            let arrch =  {  { 'p', 'a', 'p', 'a', 'p' } ,  { 'm', 'a', 'm', 'a' }  }  in  
+                let arrbool =  {  {  ( 1 = 1 ) ,  ( 2 = 3 ) ,  ( 4 = 4 ) ,  ( 5 = 5 )  } ,  {  ( 1 = 2 ) ,  ( 2 = 2 ) ,  ( 3 = 4 ) ,  ( 7 = 7 )  }  }  in  
+                    let arrint =  {  {  ( 1 + 2 ) ,  ( 3 + 5 )  } ,  {  ( 1 + 8 ) ,  ( 3 + 10 )  }  }  in  
+                        let a = arrch[ 0 ] in  
+                            let b = write(a[ 2 ])  in  
+                                let a = arrch[ 1 ] in  
+                                    let b = write(a[ 3 ])  in  
+                                        let b = write(arrch[ 1 ])  in  
+                                            let b = write("\n")  in  
+                                                let a = arrbool[ 0 ] in  
+                                                    let b = write(a[ 1 ])  in  
+                                                        let a = arrbool[ 1 ] in  
+                                                            let b = write(a[ 2 ])  in  
+                                                                let b = write("\n")  in  
+                                                                    let a = arrint[ 0 ] in  
+                                                                        let b = write(a[ 1 ])  in  
+                                                                            let a = arrint[ 1 ] in  
+                                                                                let b = write(a[ 0 ])  in  
+                                                                                    let c = write("\n")  in  1
+
+
+Input/Output:
+mamam
+ p a Interpreter error: Write Can Be Called Only on Basic and Array(Char) Types 
+Line 6, column 115.

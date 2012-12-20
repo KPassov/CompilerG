@@ -1,0 +1,27 @@
+Program is:
+
+
+
+fun char readChar( int  i) = 
+  read(char ) 
+
+fun [ char  ] readCharArr( int  n) = 
+  map ( readChar, iota ( n )  ) 
+
+fun int main( ) = 
+  
+    let a = read(bool )  in  
+        let b = read(bool )  in  
+            let c =  ( a = b )  in  
+                if( c )
+                  then 
+                    let q = write(a)  in  1
+                  else 
+                    let q = write(b)  in  2
+              
+
+
+Input/Output:
+1 
+
+RESULT: 2

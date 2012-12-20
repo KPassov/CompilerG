@@ -9,6 +9,5 @@ fun int main( ) =
 
 
 Input/Output:
-
-Interpreter error: MapOP: not a known type 
+Interpreter error: MapOP: not a known type
 Line 0, column 0.

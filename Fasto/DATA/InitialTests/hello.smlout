@@ -1,0 +1,12 @@
+Program is:
+
+
+
+fun [ char  ] main( ) = 
+  write("Hello world") 
+
+
+Input/Output:
+Hello world 
+
+RESULT:  { 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd' } 

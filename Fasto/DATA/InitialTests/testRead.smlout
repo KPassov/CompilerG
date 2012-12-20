@@ -1,0 +1,111 @@
+Program is:
+
+
+
+fun int readInt( int  i) = 
+  
+    let a = write("Enter int number ")  in  
+        let b = write(i)  in  
+            let c = write("\n")  in  
+                let v = read(int )  in  v
+
+fun char readChar( int  i) = 
+  
+    let a = write("Enter char number ")  in  
+        let b = write(i)  in  
+            let c = write("\n")  in  
+                let v = read(char )  in  v
+
+fun bool readBool( int  i) = 
+  
+    let a = write("Enter bool number ")  in  
+        let b = write(i)  in  
+            let c = write("\n")  in  
+                let v = read(bool )  in  v
+
+fun [ int  ] readIntArr( int  n) = 
+  
+    let itsp = iota ( n )  in  map ( readInt, itsp ) 
+
+fun [ char  ] readCharArr( int  n) = 
+  
+    let itsp = iota ( n )  in  map ( readChar, itsp ) 
+
+fun [ bool  ] readBoolArr( int  n) = 
+  
+    let itsp = iota ( n )  in  map ( readBool, itsp ) 
+
+fun [ [ int  ]  ] readIntArrArr( int  n) = 
+  
+    let iotaarr = replicate ( n, n )  in  map ( readIntArr, iotaarr ) 
+
+fun [ [ char  ]  ] readCharArrArr( int  n) = 
+  
+    let iotaarr = replicate ( n, n )  in  map ( readCharArr, iotaarr ) 
+
+fun [ [ bool  ]  ] readBoolArrArr( int  n) = 
+  
+    let iotaarr = replicate ( n, n )  in  map ( readBoolArr, iotaarr ) 
+
+fun int writeInt( int  i) = 
+  
+    let v = write(i)  in  i
+
+fun int writeIntArr( [ int  ]  arr) = 
+  
+    let v = map ( writeInt, arr )  in  1
+
+fun int writeIntArrArr( [ [ int  ]  ]  arr) = 
+  
+    let v = map ( writeIntArr, arr )  in  1
+
+fun int writeChar( char  i) = 
+  
+    let v = write(i)  in  1
+
+fun int writeCharArr( [ char  ]  arr) = 
+  
+    let v = map ( writeChar, arr )  in  1
+
+fun int writeCharArrArr( [ [ char  ]  ]  arr) = 
+  
+    let v = map ( writeCharArr, arr )  in  1
+
+fun int writeBool( bool  i) = 
+  
+    let v = write(i)  in  1
+
+fun int writeBoolArr( [ bool  ]  arr) = 
+  
+    let v = map ( writeBool, arr )  in  1
+
+fun int writeBoolArrArr( [ [ bool  ]  ]  arr) = 
+  
+    let v = map ( writeBoolArr, arr )  in  1
+
+fun int main( ) = 
+  
+    let arri = readIntArrArr( 2 )  in  
+        let a = writeIntArrArr( arri )  in  
+            let arrc = readCharArrArr( 2 )  in  
+                let a = writeCharArrArr( arrc )  in  
+                    let arrb = readBoolArrArr( 2 )  in  
+                        let a = writeBoolArrArr( arrb )  in  1
+
+
+Input/Output:
+Enter int number  0 
+ Enter int number  1 
+ Enter int number  0 
+ Enter int number  1 
+ 1 2 3 4 Enter char number  0 
+ Enter char number  1 
+ Enter char number  0 
+ Enter char number  1 
+ a b c d Enter bool number  0 
+ Enter bool number  1 
+ Enter bool number  0 
+ Enter bool number  1 
+ 1 0 1 1 
+
+RESULT: 1

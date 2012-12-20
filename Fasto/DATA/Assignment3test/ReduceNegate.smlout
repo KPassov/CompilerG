@@ -1,0 +1,13 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let arrint =  { 1, 2, 3, 4 }  in  
+        let b = reduceop (  ~ , 1, arrint )  in  write(b) 
+
+
+Input/Output:
+Interpreter error: First Argument of ReduceOP is not a vaild operator
+Line 2, column 26.

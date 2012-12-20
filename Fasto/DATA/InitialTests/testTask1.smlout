@@ -1,0 +1,19 @@
+Program is:
+
+
+
+fun bool main( ) = 
+  
+    let x = read(int )  in  
+        let y = 7 in  
+            let to =  ( x = y )  in  
+                let be =  ( x = 9 )  in  
+                    let res =  (  ( to = be )  |  ( to &  ( be = true )  )  )  in  
+                        let z = write(res)  in  
+                            let w =  (  ( Error unknown input from Parser.sml +  ( y * x )  )  =  (  ( y * x )  - x )  )  in  write(w) 
+
+
+Input/Output:
+1 1 
+
+RESULT: true

@@ -1,0 +1,19 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let str = "mamam\n" in  
+        let a = write(str)  in  
+            let arrch =  {  { 'p', 'a', 'p', 'a', 'p' } ,  { 'm', 'a', 'm', 'a' }  }  in  
+                let arrbool =  {  {  ( 1 = 1 ) ,  ( 2 = 3 ) ,  ( 4 = 4 ) ,  ( 5 = 5 )  } ,  {  ( 1 = 2 ) ,  ( 2 = 2 ) ,  ( 3 = 4 ) ,  ( 7 = 7 )  }  }  in  
+                    let arrint =  {  {  ( 1 + 2 ) ,  ( 3 + 5 )  } ,  {  ( 1 + 8 ) ,  ( 3 + 10 )  }  }  in  
+                        let a = arrch[ 1 ] in  1
+
+
+Input/Output:
+mamam
+ 
+
+RESULT: 1
