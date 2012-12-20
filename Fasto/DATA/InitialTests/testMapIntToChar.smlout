@@ -1,0 +1,17 @@
+Program is:
+
+
+
+fun [ char  ] vectOrd( [ int  ]  arr) = 
+  map ( chr, arr ) 
+
+fun [ char  ] main( ) = 
+  
+    let intarr =  {  { 101, 102, 103 } ,  { 104, 105 }  }  in  
+        let charr = map ( vectOrd, intarr )  in  write(charr[ 1 ]) 
+
+
+Input/Output:
+hi 
+
+RESULT:  { 'h', 'i' } 

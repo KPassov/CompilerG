@@ -1,0 +1,14 @@
+Program is:
+
+
+
+fun bool second( bool  random) = 
+   ( random = 42 ) 
+
+fun int main( ) = 
+  write( ( "Hello" + read(int )  ) ) 
+
+
+Input/Output:
+Interpreter error: Arguments of + Are Not Integers! Arg1:  { 'H', 'e', 'l', 'l', 'o' }  Arg2: 1
+Line 10, column 34.

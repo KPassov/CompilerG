@@ -1,0 +1,14 @@
+Program is:
+
+
+
+fun int main( ) = 
+  
+    let a = iota ( 0 )  in  
+        let b = replicate ( 0, a )  in  
+            let c = b[ 0 ] in  write(c[ 0 ]) 
+
+
+Input/Output:
+Interpreter error: Error: In iota call, size is less or equal to 0: 0
+Line 2, column 18.
